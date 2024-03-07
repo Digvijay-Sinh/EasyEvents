@@ -4,6 +4,7 @@ import { AuthData, useAuth } from "./context/AuthProvider";
 import Layout from "./layout/Layout";
 import { useEffect } from "react";
 import axios, { axiosPrivate } from "./api/axios";
+import toast, { Toaster } from "react-hot-toast";
 
 function App() {
   const { auth, setAuth } = useAuth();
@@ -21,7 +22,7 @@ function App() {
       navigate("/");
       return null; // Return null or handle the error accordingly
     }
-    setAuth((prevAuth: AuthData | null) => ({
+    setAuth((prevAuth: AuthData) => ({
       ...prevAuth!,
       accessToken: response.data.accessToken,
       // Include other properties if needed
@@ -67,6 +68,11 @@ function App() {
   }, [auth]);
   return (
     <>
+      <Toaster
+        containerStyle={{
+          top: 80,
+        }}
+      />
       <Layout />
     </>
   );

@@ -13,6 +13,9 @@ const Nav = () => {
     });
   };
   useEffect(() => {
+    console.log("============auth================");
+    console.log(auth);
+    console.log("====================================");
     if (auth?.accessToken) {
       setLoggedIn(true);
     }

@@ -24,8 +24,8 @@ export interface AuthData {
 
 // Define the context type
 interface AuthContextType {
-  auth: AuthData | null;
-  setAuth: React.Dispatch<React.SetStateAction<AuthData | null>>;
+  auth: AuthData;
+  setAuth: React.Dispatch<React.SetStateAction<AuthData>>;
 }
 
 // Create the context
@@ -42,7 +42,10 @@ export const useAuth = () => {
 
 // Create the AuthProvider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [auth, setAuth] = useState<AuthData | null>(null);
+  const [auth, setAuth] = useState<AuthData>({
+    email: "",
+    accessToken: "",
+  });
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>

@@ -1,35 +1,97 @@
-import axios from "../../../api/axios";
-import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import formbg from "../../../assets/events/formbgfinal.jpg";
-import { useAuth } from "../../../context/AuthProvider";
+import { AuthData, useAuth } from "../../../context/AuthProvider";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import toast from "react-hot-toast";
+import { FieldValues, Resolver, SubmitHandler, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
+
+type FormData = {
+  email: string;
+  password: string;
+};
+
+const schema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
+});
 
 const LoginForm = () => {
   const navigate = useNavigate();
-  const { auth, setAuth } = useAuth();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const loginForm = useForm<FormData>({
+    defaultValues: {
+      password: "",
+      email: "",
+    },
+    resolver: yupResolver(schema) as Resolver<FormData>,
+  });
+
+  const { register, handleSubmit, formState } = loginForm;
+  const { errors } = formState;
+
+  const { auth, setAuth } = useAuth();
+
+  const handleSubmitForm: SubmitHandler<FieldValues> = async (data) => {
     try {
+      const { email, password } = data;
       const res = await axios.post(
-        "/api/v1/auth/login",
+        "http://localhost:5000/api/v1/auth/login",
         JSON.stringify({ email, password }),
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
-      const accessToken = res?.data?.accessToken;
-      setAuth({ email, accessToken });
-      console.log(auth);
-      navigate("/private");
+      if (res && res.status === 200) {
+        console.log("==========res data================");
+        console.log(res?.data);
+        console.log("====================================");
+        const accessToken = res.data.data.accessToken;
+        console.log("===========accessToken=================");
+        console.log(accessToken);
+        console.log("==========accessToken===============");
 
-      console.log(JSON.stringify(res?.data));
-      setEmail("");
-      setPassword("");
+        // setAuth({ email, accessToken });
+        // setAuth({
+        //   accessToken,
+        //   email,
+        // });
+        setAuth((prevAuth: AuthData) => ({
+          ...prevAuth!,
+          accessToken: accessToken,
+          email: email,
+          // Include other properties if needed
+        }));
+        console.log(auth);
+        toast.success("Login successful");
+
+        navigate("/private");
+
+        console.log(JSON.stringify(res?.data));
+      }
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+
+        console.error("An error occurred:", error);
+      }
       console.log(error);
     }
   };
@@ -47,10 +109,9 @@ const LoginForm = () => {
                 Login
               </h1>
               <form
+                noValidate
                 className="space-y-4 md:space-y-6"
-                onSubmit={(e: React.FormEvent<HTMLFormElement>) =>
-                  handleSubmit(e)
-                }
+                onSubmit={handleSubmit(handleSubmitForm)}
               >
                 <div>
                   <label
@@ -60,16 +121,21 @@ const LoginForm = () => {
                     Your email
                   </label>
                   <input
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setEmail(e.target.value)
-                    }
                     type="email"
-                    name="email"
+                    {...register("email")}
                     id="email"
                     className=" border   sm:text-sm rounded-lg  block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                     placeholder="name@company.com"
-                    required
                   />
+                  <div>
+                    {errors.email ? (
+                      <p className="text-red-500 text-xs italic">
+                        {errors.email.message}
+                      </p>
+                    ) : (
+                      <div style={{ height: "1rem" }} />
+                    )}
+                  </div>
                 </div>
 
                 <div>
@@ -80,16 +146,21 @@ const LoginForm = () => {
                     Password
                   </label>
                   <input
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setPassword(e.target.value)
-                    }
                     type="password"
-                    name="password"
+                    {...register("password")}
                     id="password"
                     placeholder="••••••••"
                     className=" border   sm:text-sm rounded-lg  block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                    required
                   />
+                  <div>
+                    {errors.password ? (
+                      <p className="text-red-500 text-xs italic">
+                        {errors.password.message}
+                      </p>
+                    ) : (
+                      <div style={{ height: "1rem" }} />
+                    )}
+                  </div>
                 </div>
 
                 <button
@@ -100,12 +171,12 @@ const LoginForm = () => {
                 </button>
                 <p className="text-sm font-light text-gray-400">
                   Don't have an account yet?{" "}
-                  <a
-                    href="#"
+                  <Link
+                    to="/signup"
                     className="font-medium   hover:underline text-blue-500"
                   >
                     Signup here
-                  </a>
+                  </Link>
                 </p>
               </form>
             </div>
