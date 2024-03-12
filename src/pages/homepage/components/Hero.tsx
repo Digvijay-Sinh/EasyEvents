@@ -30,7 +30,7 @@ const Hero = () => {
   ];
   return (
     <>
-      <div className="md:h-[60vh] sm:h-[60vh] xs:h-[60vh] overflow-hidden sm:p-10 bg-black">
+      <div className="md:h-[60vh] sm:h-[60vh] xs:h-[60vh] overflow-hidden sm:p-10 ">
         <div className="md:h-[50vh] sm:h-[50vh] xs:h-[50vh] w-full  mt-5">
           <Carousel>
             {SliderData.map((item) => (

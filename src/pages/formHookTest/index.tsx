@@ -1,10 +1,12 @@
-import React from "react";
-import FormHook from "./FormHook";
+// import React from "react";
+// import FormHook from "./FormHook";
+import ImageForm from "./ImageForm";
 
 const FormHookTest = () => {
   return (
     <div>
-      <FormHook />
+      <ImageForm />
+      {/* <FormHook /> */}
     </div>
   );
 };

@@ -1,20 +1,27 @@
-import eventImage from "../../../assets/events/alexandre-pellaes-6vAjp0pscX0-unsplash.jpg";
-const EventCard = () => {
+import { Event } from "../index";
+interface EventDetailsProps {
+  event: Event;
+  customKey: number;
+}
+
+const EventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
   return (
     <>
       <div className="max-w-sm min-w-fit m-2 border  rounded-lg shadow   w-5/6  p-2 backdrop-blur-md bg-white/10 ">
         <a href="#">
-          <img className="rounded-t-lg" src={eventImage} alt="" />
+          <img
+            className="rounded-t-lg"
+            src={`http://localhost:5000/uploads/event_business_${customKey}.jpg`}
+            alt=""
+          />
         </a>
         <div className="p-5">
           <a href="#">
             <h5 className="mb-2 text-sm  font-bold tracking-tight text-white  md:text-2xl sm:text-3xl xs:text-3xl">
-              Noteworthy technology acquisitions 2021
+              {event.title}
             </h5>
           </a>
-          <p className="mb-3 font-normal text-xs text-gray-400">
-            May 5, 2024, 8:00 PM - May 6, 2024, 2:00 AM
-          </p>
+          <p className="mb-3 font-normal text-xs text-gray-400">{event.date}</p>
           <a
             href="#"
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white  rounded-lg   bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"

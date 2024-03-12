@@ -11,6 +11,8 @@ import HomePage from "../pages/homepage";
 import PrivateRequestPage from "../pages/privateRequestCheck";
 import FormHookTest from "../pages/formHookTest";
 import ProtectedPage from "../pages/protectedpage";
+import CheckBg from "../pages/checkbg";
+import DemoApi from "../pages/demoApi";
 
 const RouteContainer = () => {
   return (
@@ -26,6 +28,8 @@ const RouteContainer = () => {
         <Route path="/eventpage" element={<EventPage />} />
         <Route path="/searchpage" element={<SearchPage />} />
         <Route path="/private" element={<PrivateRequestPage />} />
+        <Route path="/checkBg" element={<CheckBg />} />
+        <Route path="/demoapi" element={<DemoApi />} />
         <Route
           path="/protected"
           element={

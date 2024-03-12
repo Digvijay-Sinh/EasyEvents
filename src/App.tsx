@@ -4,7 +4,7 @@ import { AuthData, useAuth } from "./context/AuthProvider";
 import Layout from "./layout/Layout";
 import { useEffect } from "react";
 import axios, { axiosPrivate } from "./api/axios";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 function App() {
   const { auth, setAuth } = useAuth();

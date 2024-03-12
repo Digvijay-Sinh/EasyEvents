@@ -24,8 +24,6 @@ const DarkModeDatepicker = ({ value, handleValueChange, placeholder }) => {
           endDate: new Date(value.endDate),
         }}
         onChange={handleValueChange}
-        // inputClassName={darkMode ? "text-white" : ""} // Adjust text color for dark mode
-        // No need to add specific dark mode classes for the Datepicker component
       />
     </div>
   );

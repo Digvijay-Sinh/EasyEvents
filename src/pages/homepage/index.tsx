@@ -1,18 +1,82 @@
 import { useNavigate } from "react-router-dom";
 import Hero from "./components/Hero";
-
-import axios, { axiosPrivate } from "../../api/axios";
+import axios from "axios";
+import { axiosPrivate } from "../../api/axios";
 import { AuthData, useAuth } from "../../context/AuthProvider";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import EventCard from "./components/EventCard";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import SearchBar from "./components/SearchBar";
+import toast from "react-hot-toast";
 
 // import { Carousel } from "flowbite-react";
 
+export enum EventType {
+  CONFERENCE = "CONFERENCE",
+  SEMINAR = "SEMINAR",
+  WORKSHOP = "WORKSHOP",
+  // Add more types as needed
+}
+
+export interface Event {
+  eventID: number;
+  title: string;
+  description: string;
+  date: string;
+  location: string;
+  virtual: boolean;
+  offline: boolean;
+  freeEntry: boolean;
+  eventType: EventType; // Using enum
+  organizerID: number;
+  posterImage: string;
+  thumbnailImage: string;
+}
+
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
+
+  const [events, setEvents] = useState<Event[]>([]);
+
+  useEffect(() => {
+    const getAllEvents = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/v1/events");
+        if (res && res.status === 200) {
+          console.log("==========res data================");
+          console.log(res?.data);
+
+          // setAuth({ email, accessToken });
+          // setAuth({
+          //   accessToken,
+          //   email,
+          // });
+          setEvents(res.data);
+        }
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          // Handle Axios errors
+          if (error.response && error.response.data) {
+            // Handle specific error messages from backend
+            const errorMessage = error.response.data.message;
+            toast.error(errorMessage);
+          } else {
+            // Other errors
+            toast.error("An error occurred");
+          }
+        } else {
+          // Handle non-Axios errors
+          toast.error("An error occurred");
+
+          console.error("An error occurred:", error);
+        }
+        console.log(error);
+      }
+    };
+
+    getAllEvents();
+  }, []);
 
   const navigate = useNavigate();
   const refresh = async () => {
@@ -71,13 +135,21 @@ const HomePage = () => {
       axiosPrivate.interceptors.response.eject(responseIntercept);
     };
   }, [auth]);
+
   return (
-    <div className="bg-black">
+    <div
+      style={{
+        background:
+          "linear-gradient(142deg, rgba(86,31,41,1) 0%, rgba(0,0,0,1) 25%, rgba(0,0,0,1) 75%, rgba(86,31,41,1) 100%)",
+      }}
+      className=""
+    >
       <Hero />
       <div className="cardContainer   ">
         <div>
           <SearchBar />
         </div>
+
         <div>
           <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
             Recommended Events
@@ -140,6 +212,11 @@ const HomePage = () => {
             slidesToSlide={1}
             swipeable
           >
+            {events?.map((event, index) => {
+              return <EventCard customKey={index} event={event} />;
+            })}
+            {/* <EventCard /> */}
+            {/* <EventCard />
             <EventCard />
             <EventCard />
             <EventCard />
@@ -162,8 +239,7 @@ const HomePage = () => {
             <EventCard />
             <EventCard />
             <EventCard />
-            <EventCard />
-            <EventCard />
+            <EventCard /> */}
           </Carousel>
         </div>
         {/* <Carousel indicators={false} slide={false} leftControl="left">

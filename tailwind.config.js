@@ -13,6 +13,7 @@ export default {
             fontFamily: {
                 custom: ['Lora', 'sans-serif'],
             },
+
         },
     },
     plugins: [
