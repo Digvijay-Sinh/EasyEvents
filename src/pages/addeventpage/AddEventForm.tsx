@@ -1,6 +1,6 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Button } from "flowbite-react";
-import React from "react";
+import React, { useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import * as yup from "yup";
 
@@ -65,8 +65,24 @@ type FormData = {
   category_id: number;
   type_id: number;
 };
+type FormDataVenue = {
+  name: string;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+};
+
+const formDataVenueSchema = yup.object().shape({
+  name: yup.string().required("Name is required"),
+  address: yup.string().required("Address is required"),
+  city: yup.string().required("City is required"),
+  state: yup.string().required("State is required"),
+  country: yup.string().required("Country is required"),
+});
 
 const AddEventForm: React.FC = () => {
+  const [showAddVenueForm, setShowAddVenueForm] = useState(false);
   const { register, handleSubmit, formState } = useForm<FormData>({
     defaultValues: {
       title: "",
@@ -85,10 +101,29 @@ const AddEventForm: React.FC = () => {
     },
     resolver: yupResolver(schema) as Resolver<FormData>,
   });
+  const {
+    register: registerVenue,
+    handleSubmit: handleSubmitVenue,
+    formState: formStateVenue,
+  } = useForm<FormDataVenue>({
+    defaultValues: {
+      name: "",
+      address: "",
+      city: "",
+      state: "",
+      country: "",
+    },
+    resolver: yupResolver(formDataVenueSchema) as Resolver<FormDataVenue>,
+  });
 
   const { errors } = formState;
+  const { errors: errorsVenue } = formStateVenue;
 
   const onSubmit = (data: FormData) => {
+    // Handle form submission
+    console.log(data);
+  };
+  const onSubmitVenue = (data: FormDataVenue) => {
     // Handle form submission
     console.log(data);
   };
@@ -275,68 +310,6 @@ const AddEventForm: React.FC = () => {
                         )}
                       </div>{" "}
                     </div>
-                  </div>
-                  <div className="sm:w-1/2 w-full m-0 sm:m-4">
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-white">
-                        Event Capacity
-                      </label>
-                      <input
-                        type="text"
-                        {...register("capacity")}
-                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <div>
-                        {errors.capacity ? (
-                          <p className="text-red-500 text-xs italic">
-                            {errors.capacity.message}
-                          </p>
-                        ) : (
-                          <div style={{ height: "1rem" }} />
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-white">
-                        Ticket price
-                      </label>
-                      <input
-                        type="number"
-                        {...register("price")}
-                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <div>
-                        {errors.price ? (
-                          <p className="text-red-500 text-xs italic">
-                            {errors.price.message}
-                          </p>
-                        ) : (
-                          <div style={{ height: "1rem" }} />
-                        )}
-                      </div>{" "}
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-white">
-                        Venue ID
-                      </label>
-                      <input
-                        type="text"
-                        {...register("venue_id")}
-                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <div>
-                        {errors.venue_id ? (
-                          <p className="text-red-500 text-xs italic">
-                            {errors.venue_id.message}
-                          </p>
-                        ) : (
-                          <div style={{ height: "1rem" }} />
-                        )}
-                      </div>
-                    </div>
-
                     <div>
                       <label className="block mb-2 text-sm font-medium text-white">
                         Event Category
@@ -398,6 +371,223 @@ const AddEventForm: React.FC = () => {
                           <div style={{ height: "1rem" }} />
                         )}
                       </div>{" "}
+                    </div>
+                  </div>
+                  <div className="sm:w-1/2 w-full m-0 sm:m-4">
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-white">
+                        Event Capacity
+                      </label>
+                      <input
+                        type="text"
+                        {...register("capacity")}
+                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <div>
+                        {errors.capacity ? (
+                          <p className="text-red-500 text-xs italic">
+                            {errors.capacity.message}
+                          </p>
+                        ) : (
+                          <div style={{ height: "1rem" }} />
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-white">
+                        Ticket price
+                      </label>
+                      <input
+                        type="number"
+                        {...register("price")}
+                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <div>
+                        {errors.price ? (
+                          <p className="text-red-500 text-xs italic">
+                            {errors.price.message}
+                          </p>
+                        ) : (
+                          <div style={{ height: "1rem" }} />
+                        )}
+                      </div>{" "}
+                    </div>
+
+                    {showAddVenueForm ? (
+                      <div className="border-2 border-solid border-gray-600 p-2 rounded-lg">
+                        <form
+                          className="space-y-4 md:space-y-6"
+                          noValidate
+                          onSubmit={handleSubmitVenue(onSubmitVenue)}
+                        >
+                          {" "}
+                          <div>
+                            <div>
+                              <label className="block mb-2 text-sm font-medium text-white">
+                                Venue name
+                              </label>
+                              <input
+                                type="text"
+                                {...registerVenue("name")}
+                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <div>
+                                {errorsVenue.name ? (
+                                  <p className="text-red-500 text-xs italic">
+                                    {errorsVenue.name.message}
+                                  </p>
+                                ) : (
+                                  <div style={{ height: "1rem" }} />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block mb-2 text-sm font-medium text-white">
+                                Venue address
+                              </label>
+                              <input
+                                type="text"
+                                {...registerVenue("address")}
+                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <div>
+                                {errorsVenue.address ? (
+                                  <p className="text-red-500 text-xs italic">
+                                    {errorsVenue.address.message}
+                                  </p>
+                                ) : (
+                                  <div style={{ height: "1rem" }} />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block mb-2 text-sm font-medium text-white">
+                                Venue city
+                              </label>
+                              <input
+                                type="text"
+                                {...registerVenue("city")}
+                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <div>
+                                {errorsVenue.city ? (
+                                  <p className="text-red-500 text-xs italic">
+                                    {errorsVenue.city.message}
+                                  </p>
+                                ) : (
+                                  <div style={{ height: "1rem" }} />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block mb-2 text-sm font-medium text-white">
+                                Venue state
+                              </label>
+                              <input
+                                type="text"
+                                {...registerVenue("state")}
+                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <div>
+                                {errorsVenue.state ? (
+                                  <p className="text-red-500 text-xs italic">
+                                    {errorsVenue.state.message}
+                                  </p>
+                                ) : (
+                                  <div style={{ height: "1rem" }} />
+                                )}
+                              </div>
+                            </div>
+                            <div>
+                              <label className="block mb-2 text-sm font-medium text-white">
+                                Venue country
+                              </label>
+                              <input
+                                type="text"
+                                {...registerVenue("country")}
+                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                              />
+                              <div>
+                                {errorsVenue.country ? (
+                                  <p className="text-red-500 text-xs italic">
+                                    {errorsVenue.country.message}
+                                  </p>
+                                ) : (
+                                  <div style={{ height: "1rem" }} />
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="w-full flex justify-end ">
+                            <Button className="m-4" type="submit">
+                              Enter Venue
+                            </Button>
+                          </div>
+                        </form>
+                        {/* <div>
+                        <label className="block mb-2 text-sm font-medium text-white">
+                          Venue ID
+                        </label>
+                        <input
+                          type="text"
+                          {...register("venue_id")}
+                          className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <div>
+                          {errors.venue_id ? (
+                            <p className="text-red-500 text-xs italic">
+                              {errors.venue_id.message}
+                            </p>
+                          ) : (
+                            <div style={{ height: "1rem" }} />
+                          )}
+                        </div>
+                      </div> */}
+                      </div>
+                    ) : (
+                      <div>
+                        <label className="block mb-2 text-sm font-medium text-white">
+                          Event Venue
+                        </label>
+                        <select
+                          id="mode"
+                          // value={category}
+                          // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+                          className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
+                          {...register("venue_id", {
+                            required: {
+                              value: true,
+                              message: "Atleast One category is required!!",
+                            },
+                          })}
+                        >
+                          <option value="">Select mode</option>
+
+                          <option value="ONLINE">Online</option>
+                          <option value="OFFLINE">Offline</option>
+                        </select>
+                        <div>
+                          {errors.venue_id ? (
+                            <p className="text-red-500 text-xs italic">
+                              {errors.venue_id.message}
+                            </p>
+                          ) : (
+                            <div style={{ height: "1rem" }} />
+                          )}
+                        </div>{" "}
+                      </div>
+                    )}
+                    <div className="w-full flex justify-end ">
+                      <Button
+                        onClick={() => {
+                          setShowAddVenueForm(!showAddVenueForm);
+                        }}
+                        className="m-4"
+                        type="button"
+                      >
+                        Show/hide add form
+                      </Button>
                     </div>
                   </div>
                 </div>
