@@ -1,12 +1,27 @@
 import { yupResolver } from "@hookform/resolvers/yup";
+import axios from "axios";
 import { Button } from "flowbite-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
+import { MdAddBox } from "react-icons/md";
 import * as yup from "yup";
 
 enum EventMode {
   OFFLINE = "OFFLINE",
   ONLINE = "ONLINE",
+}
+
+interface Venue {
+  id: number;
+  name: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  address: string;
+  city: string;
+  state: string;
+  country: string;
+  google_place_id?: string | null;
 }
 
 const schema = yup.object().shape({
@@ -82,25 +97,75 @@ const formDataVenueSchema = yup.object().shape({
 });
 
 const AddEventForm: React.FC = () => {
+  const [venues, setVenues] = useState<Venue[]>([]);
+
+  // Function to fetch venues from the backend
+  const fetchVenues = async () => {
+    try {
+      // Make a GET request to your backend endpoint using Axios
+      const response = await axios.get<Venue[]>(
+        "http://localhost:5000/api/v1/venue"
+      );
+
+      console.log(response.data);
+
+      // Set the fetched venues in the state
+      setVenues(response.data);
+
+      console.log("============venues======");
+      console.log(venues);
+
+      console.log("=========venues==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
+  };
+
+  // Call fetchVenues function when component mounts
+  useEffect(() => {
+    fetchVenues();
+  }, []); // Empty dependency array ensures it runs only once when the component mounts
+
+  useEffect(() => {
+    console.log("============venues======");
+    console.log(venues);
+  }, [venues]);
   const [showAddVenueForm, setShowAddVenueForm] = useState(false);
-  const { register, handleSubmit, formState } = useForm<FormData>({
-    defaultValues: {
-      title: "",
-      description: "",
-      start_date: new Date(),
-      end_date: new Date(),
-      start_date_toRegister: new Date(),
-      end_date_toRegister: new Date(),
-      mode: EventMode.OFFLINE, // Assuming EventMode.Default is defined in your code.
-      capacity: 0,
-      price: 0,
-      organizer_id: 0,
-      venue_id: 0,
-      category_id: 0,
-      type_id: 0,
-    },
-    resolver: yupResolver(schema) as Resolver<FormData>,
-  });
+  const { register, handleSubmit, formState, setValue, getValues } =
+    useForm<FormData>({
+      defaultValues: {
+        title: "",
+        description: "",
+        start_date: new Date(),
+        end_date: new Date(),
+        start_date_toRegister: new Date(),
+        end_date_toRegister: new Date(),
+        mode: EventMode.OFFLINE, // Assuming EventMode.Default is defined in your code.
+        capacity: 0,
+        price: 0,
+        organizer_id: 0,
+        venue_id: 0,
+        category_id: 0,
+        type_id: 0,
+      },
+      resolver: yupResolver(schema) as Resolver<FormData>,
+    });
   const {
     register: registerVenue,
     handleSubmit: handleSubmitVenue,
@@ -123,10 +188,40 @@ const AddEventForm: React.FC = () => {
     // Handle form submission
     console.log(data);
   };
-  const onSubmitVenue = (data: FormDataVenue) => {
-    // Handle form submission
-    console.log(data);
+  const onSubmitVenue = async (data: FormDataVenue) => {
+    try {
+      console.log("====================================");
+      console.log(venues);
+      console.log("====================================");
+      // Make a POST request to your backend API endpoint
+      const response = await axios.post(
+        "http://localhost:5000/api/v1/venue",
+        data
+      );
+      toast.success("Venue added successfully");
+
+      console.log("response", response.data.data.id);
+
+      setShowAddVenueForm(false);
+      await fetchVenues();
+      console.log("fetchVenues", venues);
+      setValue("venue_id", response.data.data.id);
+      const avshas = getValues("venue_id");
+      console.log(avshas);
+
+      // Handle the response
+      console.log("Response:", response.data);
+    } catch (error) {
+      // Handle any errors
+      toast.error("An error occurred while adding the venue");
+      console.error("Error:", error);
+    }
   };
+  // const onSubmitVenue: SubmitHandler<FormDataVenue> = async (data) => {
+
+  //   // Handle form submission
+  //   console.log(data);
+  // };
 
   return (
     <section className="bg-no-repeat bg-center bg-cover ">
@@ -136,6 +231,203 @@ const AddEventForm: React.FC = () => {
           <h1 className="text-xl font-bold leading-tight tracking-tight  md:text-2xl text-white">
             Create an Event
           </h1>
+          {showAddVenueForm ? (
+            <div className="border-2 border-solid border-gray-600 p-2 rounded-lg">
+              <form
+                className="space-y-4 md:space-y-6"
+                noValidate
+                onSubmit={handleSubmitVenue(onSubmitVenue)}
+              >
+                {" "}
+                <div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Venue name
+                    </label>
+                    <input
+                      type="text"
+                      {...registerVenue("name")}
+                      className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div>
+                      {errorsVenue.name ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errorsVenue.name.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Venue address
+                    </label>
+                    <input
+                      type="text"
+                      {...registerVenue("address")}
+                      className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div>
+                      {errorsVenue.address ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errorsVenue.address.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Venue city
+                    </label>
+                    <input
+                      type="text"
+                      {...registerVenue("city")}
+                      className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div>
+                      {errorsVenue.city ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errorsVenue.city.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Venue state
+                    </label>
+                    <input
+                      type="text"
+                      {...registerVenue("state")}
+                      className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div>
+                      {errorsVenue.state ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errorsVenue.state.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Venue country
+                    </label>
+                    <input
+                      type="text"
+                      {...registerVenue("country")}
+                      className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                    />
+                    <div>
+                      {errorsVenue.country ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errorsVenue.country.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="w-full flex justify-end ">
+                  <Button className="m-4" type="submit">
+                    Enter Venue
+                  </Button>
+                </div>
+              </form>
+              {/* <div>
+                        <label className="block mb-2 text-sm font-medium text-white">
+                          Venue ID
+                        </label>
+                        <input
+                          type="text"
+                          {...register("venue_id")}
+                          className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                        />
+                        <div>
+                          {errors.venue_id ? (
+                            <p className="text-red-500 text-xs italic">
+                              {errors.venue_id.message}
+                            </p>
+                          ) : (
+                            <div style={{ height: "1rem" }} />
+                          )}
+                        </div>
+                      </div> */}
+            </div>
+          ) : (
+            <div>
+              <label className="block mb-2 text-sm font-medium text-white">
+                Event Venue
+              </label>
+              <select
+                id="mode"
+                // value={category}
+                // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+                className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
+                value={getValues("venue_id")} // Set the value attribute to the selected venue ID
+                onChange={(e) => {
+                  setValue("venue_id", e.target.value); // Update the value when the dropdown selection changes
+                }}
+                {...register("venue_id", {
+                  required: {
+                    value: true,
+                    message: "Atleast One category is required!!",
+                  },
+                })}
+              >
+                <option value="">Select venue</option>
+
+                {venues.map((venue) => (
+                  <option key={venue.id} value={venue.id}>
+                    <div>{venue.name},</div>
+                    <div>{venue.address},</div>
+                    <div>
+                      {" "}
+                      {venue.city},{venue.state},{venue.country}
+                    </div>
+                  </option>
+                ))}
+                {/* 
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option> */}
+              </select>
+              <div>
+                {errors.venue_id ? (
+                  <p className="text-red-500 text-xs italic">
+                    {errors.venue_id.message}
+                  </p>
+                ) : (
+                  <div style={{ height: "1rem" }} />
+                )}
+              </div>{" "}
+            </div>
+          )}
+          <div className="w-full flex justify-end ">
+            <Button
+              onClick={() => {
+                setShowAddVenueForm(!showAddVenueForm);
+              }}
+              className="m-4"
+              type="button"
+            >
+              <span className="text-2xl mr-1">
+                <MdAddBox />
+              </span>
+              {showAddVenueForm ? (
+                <span> Close the form</span>
+              ) : (
+                <span> Add new venue</span>
+              )}{" "}
+            </Button>
+          </div>
           <div>
             <div>
               <form
@@ -412,182 +704,6 @@ const AddEventForm: React.FC = () => {
                           <div style={{ height: "1rem" }} />
                         )}
                       </div>{" "}
-                    </div>
-
-                    {showAddVenueForm ? (
-                      <div className="border-2 border-solid border-gray-600 p-2 rounded-lg">
-                        <form
-                          className="space-y-4 md:space-y-6"
-                          noValidate
-                          onSubmit={handleSubmitVenue(onSubmitVenue)}
-                        >
-                          {" "}
-                          <div>
-                            <div>
-                              <label className="block mb-2 text-sm font-medium text-white">
-                                Venue name
-                              </label>
-                              <input
-                                type="text"
-                                {...registerVenue("name")}
-                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                              />
-                              <div>
-                                {errorsVenue.name ? (
-                                  <p className="text-red-500 text-xs italic">
-                                    {errorsVenue.name.message}
-                                  </p>
-                                ) : (
-                                  <div style={{ height: "1rem" }} />
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block mb-2 text-sm font-medium text-white">
-                                Venue address
-                              </label>
-                              <input
-                                type="text"
-                                {...registerVenue("address")}
-                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                              />
-                              <div>
-                                {errorsVenue.address ? (
-                                  <p className="text-red-500 text-xs italic">
-                                    {errorsVenue.address.message}
-                                  </p>
-                                ) : (
-                                  <div style={{ height: "1rem" }} />
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block mb-2 text-sm font-medium text-white">
-                                Venue city
-                              </label>
-                              <input
-                                type="text"
-                                {...registerVenue("city")}
-                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                              />
-                              <div>
-                                {errorsVenue.city ? (
-                                  <p className="text-red-500 text-xs italic">
-                                    {errorsVenue.city.message}
-                                  </p>
-                                ) : (
-                                  <div style={{ height: "1rem" }} />
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block mb-2 text-sm font-medium text-white">
-                                Venue state
-                              </label>
-                              <input
-                                type="text"
-                                {...registerVenue("state")}
-                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                              />
-                              <div>
-                                {errorsVenue.state ? (
-                                  <p className="text-red-500 text-xs italic">
-                                    {errorsVenue.state.message}
-                                  </p>
-                                ) : (
-                                  <div style={{ height: "1rem" }} />
-                                )}
-                              </div>
-                            </div>
-                            <div>
-                              <label className="block mb-2 text-sm font-medium text-white">
-                                Venue country
-                              </label>
-                              <input
-                                type="text"
-                                {...registerVenue("country")}
-                                className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                              />
-                              <div>
-                                {errorsVenue.country ? (
-                                  <p className="text-red-500 text-xs italic">
-                                    {errorsVenue.country.message}
-                                  </p>
-                                ) : (
-                                  <div style={{ height: "1rem" }} />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="w-full flex justify-end ">
-                            <Button className="m-4" type="submit">
-                              Enter Venue
-                            </Button>
-                          </div>
-                        </form>
-                        {/* <div>
-                        <label className="block mb-2 text-sm font-medium text-white">
-                          Venue ID
-                        </label>
-                        <input
-                          type="text"
-                          {...register("venue_id")}
-                          className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                        />
-                        <div>
-                          {errors.venue_id ? (
-                            <p className="text-red-500 text-xs italic">
-                              {errors.venue_id.message}
-                            </p>
-                          ) : (
-                            <div style={{ height: "1rem" }} />
-                          )}
-                        </div>
-                      </div> */}
-                      </div>
-                    ) : (
-                      <div>
-                        <label className="block mb-2 text-sm font-medium text-white">
-                          Event Venue
-                        </label>
-                        <select
-                          id="mode"
-                          // value={category}
-                          // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
-                          className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
-                          {...register("venue_id", {
-                            required: {
-                              value: true,
-                              message: "Atleast One category is required!!",
-                            },
-                          })}
-                        >
-                          <option value="">Select mode</option>
-
-                          <option value="ONLINE">Online</option>
-                          <option value="OFFLINE">Offline</option>
-                        </select>
-                        <div>
-                          {errors.venue_id ? (
-                            <p className="text-red-500 text-xs italic">
-                              {errors.venue_id.message}
-                            </p>
-                          ) : (
-                            <div style={{ height: "1rem" }} />
-                          )}
-                        </div>{" "}
-                      </div>
-                    )}
-                    <div className="w-full flex justify-end ">
-                      <Button
-                        onClick={() => {
-                          setShowAddVenueForm(!showAddVenueForm);
-                        }}
-                        className="m-4"
-                        type="button"
-                      >
-                        Show/hide add form
-                      </Button>
                     </div>
                   </div>
                 </div>
