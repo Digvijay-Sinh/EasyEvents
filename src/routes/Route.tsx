@@ -19,13 +19,13 @@ const RouteContainer = () => {
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/addevent" element={<AddEventPage />} />
+        <Route path="/event/:eventId" element={<EventPage />} />
+        <Route path="/addevent" element={<AddEventPage />}></Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/hookform" element={<FormHookTest />} />
         <Route path="/eventbooking" element={<EventBookingPage />} />
         <Route path="/eventgroup" element={<EventGroupPage />} />
-        <Route path="/eventpage" element={<EventPage />} />
         <Route path="/searchpage" element={<SearchPage />} />
         <Route path="/private" element={<PrivateRequestPage />} />
         <Route path="/checkBg" element={<CheckBg />} />

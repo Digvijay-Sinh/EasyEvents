@@ -1,13 +1,40 @@
 // import axios from "axios";
+import axios from "axios";
 import { Button } from "flowbite-react";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 import { FaCameraRetro } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const MAX_IMAGE_SIZE_MB = 1; // Maximum image size allowed in MB
 const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png"]; // Supported image types
 
-const AddEventForm3: React.FC = () => {
+type props = {
+  showForm1: boolean;
+  setShowForm1: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm2: boolean;
+  setShowForm2: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm3: boolean;
+  setShowForm3: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm4: boolean;
+  setShowForm4: React.Dispatch<React.SetStateAction<boolean>>;
+  eventId: number;
+  setEventId: React.Dispatch<React.SetStateAction<number>>;
+};
+
+const AddEventForm3: React.FC<props> = ({
+  eventId,
+  setEventId,
+  showForm1,
+  showForm2,
+  showForm3,
+  setShowForm4,
+  setShowForm1,
+  setShowForm2,
+  setShowForm3,
+  showForm4,
+}) => {
   // const { register, control, handleSubmit, formState } = useForm<FormData>({
   //   defaultValues: {
   //     speakers: [
@@ -36,6 +63,7 @@ const AddEventForm3: React.FC = () => {
 
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imageError, setImageError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
@@ -57,12 +85,42 @@ const AddEventForm3: React.FC = () => {
     }
   };
 
-  const onSubmit = () => {
-    if (selectedImage) {
-      // Handle form submission here
-      console.log("Form submitted with image:", selectedImage);
-    } else {
-      setImageError("Please select an image.");
+  const onSubmit = async () => {
+    try {
+      if (selectedImage) {
+        const formData = new FormData();
+        formData.append("image", selectedImage);
+
+        const response = await axios.post(
+          "http://localhost:5000/api/v1/imageUpload/upload",
+          formData
+        );
+        toast.success("Image uploaded successfully");
+        // Handle response from the server if needed
+        console.log("Upload successful:", response.data);
+
+        const uploadedFileName = response.data.data;
+        const formSubmitResponse = await axios.post(
+          "http://localhost:5000/api/v1/posterImage",
+          { eventId: eventId, filename: uploadedFileName }
+        );
+        toast.success("Poster image added successfully");
+        if (formSubmitResponse.status === 200) {
+          console.log("===========uploaded successfully===============");
+          console.log(formSubmitResponse.data);
+          console.log("====================================");
+          setShowForm1(false);
+          setShowForm2(false);
+          setShowForm3(false);
+          setShowForm4(true);
+        }
+      } else {
+        // Handle case where no image is selected
+        console.error("No image selected");
+      }
+    } catch (error) {
+      // Handle any errors that occur during the request
+      console.error("Error uploading image:", error);
     }
     // Handle form submission
   };
@@ -135,6 +193,16 @@ const AddEventForm3: React.FC = () => {
             </div>
           </div>
         </div>
+      </div>
+      <div>
+        <Button
+          onClick={() => {
+            toast.success("Event added successfully");
+            navigate("/");
+          }}
+        >
+          Publish your event
+        </Button>
       </div>
       {/* </div> */}
     </section>

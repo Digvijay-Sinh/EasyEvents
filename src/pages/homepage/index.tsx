@@ -9,36 +9,102 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import SearchBar from "./components/SearchBar";
 import toast from "react-hot-toast";
+import CategoryCard from "./components/CategoryCard";
 
 // import { Carousel } from "flowbite-react";
 
-export enum EventType {
-  CONFERENCE = "CONFERENCE",
-  SEMINAR = "SEMINAR",
-  WORKSHOP = "WORKSHOP",
-  // Add more types as needed
-}
+// export enum EventType {
+//   CONFERENCE = "CONFERENCE",
+//   SEMINAR = "SEMINAR",
+//   WORKSHOP = "WORKSHOP",
+//   // Add more types as needed
+// }
 
+// export interface Event {
+//   eventID: number;
+//   title: string;
+//   description: string;
+//   date: string;
+//   location: string;
+//   virtual: boolean;
+//   offline: boolean;
+//   freeEntry: boolean;
+//   eventType: EventType; // Using enum
+//   organizerID: number;
+//   posterImage: string;
+//   thumbnailImage: string;
+// }
+interface Category {
+  id: number;
+  name: string;
+  image: string;
+}
 export interface Event {
-  eventID: number;
+  id: number;
   title: string;
   description: string;
-  date: string;
-  location: string;
-  virtual: boolean;
-  offline: boolean;
-  freeEntry: boolean;
-  eventType: EventType; // Using enum
-  organizerID: number;
-  posterImage: string;
-  thumbnailImage: string;
+  start_date: string; // Changed to string to match the provided JSON date format
+  end_date: string; // Changed to string to match the provided JSON date format
+  start_date_toRegister: string; // Changed to string to match the provided JSON date format
+  end_date_toRegister: string; // Changed to string to match the provided JSON date format
+  mode: string; // Changed to string to match the provided JSON format
+  capacity: number;
+  price: number;
+  organizer_id: number; // Changed to match the provided JSON format
+  venue_id: number; // Changed to match the provided JSON format
+  category_id: number; // Changed to match the provided JSON format
+  type_id: number; // Changed to match the provided JSON format
+  images: Image[]; // Array of Image objects
+}
+
+// Interface for the Image object
+export interface Image {
+  id: number;
+  poster_image: string;
+  event_id: number;
 }
 
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
 
   const [events, setEvents] = useState<Event[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
+  const fetchCategories = async () => {
+    try {
+      // Make a GET request to fetch categories from the backend
+      const response = await axios.get<Category[]>(
+        "http://localhost:5000/api/v1/category"
+      );
+
+      console.log(response.data);
+
+      // Set the fetched categories in the state
+      setCategories(response.data);
+
+      console.log("============categories======");
+      console.log(categories);
+
+      console.log("=========categories==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
+  };
   useEffect(() => {
     const getAllEvents = async () => {
       try {
@@ -76,6 +142,7 @@ const HomePage = () => {
     };
 
     getAllEvents();
+    fetchCategories();
   }, []);
 
   const navigate = useNavigate();
@@ -136,6 +203,29 @@ const HomePage = () => {
     };
   }, [auth]);
 
+  const dummyEvent = {
+    id: 2,
+    title: "ttrtrtrr",
+    description: "rtrtrrt",
+    start_date: "2024-03-09T13:24:00.000Z",
+    end_date: "2024-03-10T13:24:00.000Z",
+    start_date_toRegister: "2024-03-01T13:24:00.000Z",
+    end_date_toRegister: "2024-03-02T13:24:00.000Z",
+    mode: "ONLINE",
+    capacity: 333,
+    price: 33,
+    organizer_id: 1,
+    venue_id: 1,
+    category_id: 17,
+    type_id: 14,
+    images: [
+      {
+        id: 1,
+        poster_image: "image-1710768313757Untitled.png",
+        event_id: 2,
+      },
+    ],
+  };
   return (
     <div
       style={{
@@ -150,73 +240,85 @@ const HomePage = () => {
           <SearchBar />
         </div>
 
+        {/* Based on interest */}
         <div>
-          <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
-            Recommended Events
-          </h1>
-        </div>
-        <div>
-          <Carousel
-            additionalTransfrom={0}
-            arrows
-            autoPlaySpeed={3000}
-            centerMode={true}
-            className="flex gap-2"
-            containerClass="container-with-dots"
-            dotListClass=""
-            draggable
-            focusOnSelect={false}
-            infinite
-            itemClass=""
-            keyBoardControl
-            minimumTouchDrag={80}
-            pauseOnHover
-            renderArrowsWhenDisabled={false}
-            renderButtonGroupOutside={false}
-            renderDotsOutside={false}
-            responsive={{
-              desktop: {
-                breakpoint: {
-                  max: 3000,
-                  min: 1024,
+          <div className="mt-10">
+            <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+              Recommended Events <br />
+              <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                Based on your interests
+              </span>
+            </h1>
+          </div>
+          <div>
+            <Carousel
+              additionalTransfrom={0}
+              arrows
+              autoPlaySpeed={3000}
+              centerMode={true}
+              className="flex gap-2"
+              containerClass="container-with-dots"
+              dotListClass=""
+              draggable
+              focusOnSelect={false}
+              infinite
+              itemClass=""
+              keyBoardControl
+              minimumTouchDrag={80}
+              pauseOnHover
+              renderArrowsWhenDisabled={false}
+              renderButtonGroupOutside={false}
+              renderDotsOutside={false}
+              responsive={{
+                desktop: {
+                  breakpoint: {
+                    max: 3000,
+                    min: 1024,
+                  },
+                  items: 3,
+                  partialVisibilityGutter: 40,
+                  slidesToSlide: 3,
                 },
-                items: 3,
-                partialVisibilityGutter: 40,
-                slidesToSlide: 3,
-              },
-              mobile: {
-                breakpoint: {
-                  max: 464,
-                  min: 0,
+                mobile: {
+                  breakpoint: {
+                    max: 464,
+                    min: 0,
+                  },
+                  items: 1,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 1,
                 },
-                items: 1,
-                partialVisibilityGutter: 30,
-                slidesToSlide: 1,
-              },
-              tablet: {
-                breakpoint: {
-                  max: 1024,
-                  min: 464,
+                tablet: {
+                  breakpoint: {
+                    max: 1024,
+                    min: 464,
+                  },
+                  items: 2,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 2,
                 },
-                items: 2,
-                partialVisibilityGutter: 30,
-                slidesToSlide: 2,
-              },
-            }}
-            rewind={false}
-            rewindWithAnimation={false}
-            rtl={false}
-            shouldResetAutoplay
-            showDots={false}
-            sliderClass=""
-            slidesToSlide={1}
-            swipeable
-          >
-            {events?.map((event, index) => {
-              return <EventCard customKey={index} event={event} />;
-            })}
-            {/* <EventCard /> */}
-            {/* <EventCard />
+              }}
+              rewind={false}
+              rewindWithAnimation={false}
+              rtl={false}
+              shouldResetAutoplay
+              showDots={false}
+              sliderClass=""
+              slidesToSlide={1}
+              swipeable
+            >
+              <div className="m-2">
+                <EventCard customKey={100} event={dummyEvent} />
+              </div>
+              {events?.map((event, index) => {
+                return (
+                  <div className="m-2">
+                    <EventCard customKey={index} event={event} />
+                  </div>
+                );
+              })}
+              {/* <EventCard /> */}
+              {/* <EventCard />
             <EventCard />
             <EventCard />
             <EventCard />
@@ -240,48 +342,194 @@ const HomePage = () => {
             <EventCard />
             <EventCard />
             <EventCard /> */}
-          </Carousel>
+            </Carousel>
+          </div>
         </div>
-        {/* <Carousel indicators={false} slide={false} leftControl="left">
-          <div className="flex gap-10">
-            <EventCard />
-            <EventCard />
-            <EventCard />
+        {/* Based on location */}
+        <div>
+          <div className="mt-10">
+            <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+              Recommended Events <br />
+              <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                Based on your location
+              </span>
+            </h1>
           </div>
-          <div className="flex gap-10">
+          <div>
+            <Carousel
+              additionalTransfrom={0}
+              arrows
+              autoPlaySpeed={3000}
+              centerMode={true}
+              className="flex gap-2"
+              containerClass="container-with-dots"
+              dotListClass=""
+              draggable
+              focusOnSelect={false}
+              infinite
+              itemClass=""
+              keyBoardControl
+              minimumTouchDrag={80}
+              pauseOnHover
+              renderArrowsWhenDisabled={false}
+              renderButtonGroupOutside={false}
+              renderDotsOutside={false}
+              responsive={{
+                desktop: {
+                  breakpoint: {
+                    max: 3000,
+                    min: 1024,
+                  },
+                  items: 3,
+                  partialVisibilityGutter: 40,
+                  slidesToSlide: 3,
+                },
+                mobile: {
+                  breakpoint: {
+                    max: 464,
+                    min: 0,
+                  },
+                  items: 1,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 1,
+                },
+                tablet: {
+                  breakpoint: {
+                    max: 1024,
+                    min: 464,
+                  },
+                  items: 2,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 2,
+                },
+              }}
+              rewind={false}
+              rewindWithAnimation={false}
+              rtl={false}
+              shouldResetAutoplay
+              showDots={false}
+              sliderClass=""
+              slidesToSlide={1}
+              swipeable
+            >
+              <div className="m-2">
+                <EventCard customKey={100} event={dummyEvent} />
+              </div>
+              {events?.map((event, index) => {
+                return (
+                  <div className="m-2">
+                    <EventCard customKey={index} event={event} />
+                  </div>
+                );
+              })}
+              {/* <EventCard /> */}
+              {/* <EventCard />
             <EventCard />
             <EventCard />
             <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard /> */}
+            </Carousel>
           </div>
-
-          <EventCard />
-          <EventCard />
-          <EventCard />
-          <EventCard />
-          <EventCard />
-          <EventCard />
-        </Carousel> */}
-      </div>
-      Homepage2
-      <div>
-        <button
-          className="bg-slate-500"
-          onClick={() => {
-            navigate("/eventpage");
-          }}
-        >
-          Event page
-        </button>
-      </div>
-      <div>
-        <button
-          className="bg-slate-500"
-          onClick={() => {
-            navigate("/addevent");
-          }}
-        >
-          Add event
-        </button>
+        </div>
+        {/* Popular categories */}
+        <div>
+          <div className="mt-10">
+            <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+              Popular categories <br />
+            </h1>
+          </div>
+          <div>
+            <Carousel
+              additionalTransfrom={0}
+              arrows
+              autoPlaySpeed={3000}
+              centerMode={true}
+              className="flex gap-2"
+              containerClass="container-with-dots"
+              dotListClass=""
+              draggable
+              focusOnSelect={false}
+              infinite
+              itemClass=""
+              keyBoardControl
+              minimumTouchDrag={80}
+              pauseOnHover
+              renderArrowsWhenDisabled={false}
+              renderButtonGroupOutside={false}
+              renderDotsOutside={false}
+              responsive={{
+                desktop: {
+                  breakpoint: {
+                    max: 3000,
+                    min: 1024,
+                  },
+                  items: 3,
+                  partialVisibilityGutter: 40,
+                  slidesToSlide: 3,
+                },
+                mobile: {
+                  breakpoint: {
+                    max: 464,
+                    min: 0,
+                  },
+                  items: 1,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 1,
+                },
+                tablet: {
+                  breakpoint: {
+                    max: 1024,
+                    min: 464,
+                  },
+                  items: 2,
+                  partialVisibilityGutter: 30,
+                  slidesToSlide: 2,
+                },
+              }}
+              rewind={false}
+              rewindWithAnimation={false}
+              rtl={false}
+              shouldResetAutoplay
+              showDots={false}
+              sliderClass=""
+              slidesToSlide={1}
+              swipeable
+            >
+              {categories?.map((category, index) => {
+                if (category.image != "") {
+                  return (
+                    <div className="m-2">
+                      <CategoryCard
+                        id={category.id}
+                        image={category.image}
+                        name={category.name}
+                      />
+                    </div>
+                  );
+                }
+              })}
+            </Carousel>
+          </div>
+        </div>
       </div>
     </div>
   );

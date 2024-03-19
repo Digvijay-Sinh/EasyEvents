@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Event } from "../index";
 interface EventDetailsProps {
   event: Event;
@@ -5,24 +6,53 @@ interface EventDetailsProps {
 }
 
 const EventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
+  const convertedEventDate = (backendDate: string) => {
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    // Create a Date object from the backend date string
+    const utcDate = new Date(backendDate);
+
+    // Convert the date to the user's timezone
+    const userLocalDate = new Date(
+      utcDate.toLocaleString("en-US", { timeZone: userTimeZone })
+    );
+    console.log(userLocalDate);
+
+    // Get the time portion of the date
+    // const time = userLocalDate.toLocaleTimeString("en-US", {
+    //   hour: "numeric",
+    //   minute: "numeric",
+    //   hour12: true,
+    // });
+    // https://dv8rlqlr-5173.inc1.devtunnels.ms/
+    return `${userLocalDate.toDateString()}`;
+  };
   return (
     <>
-      <div className="max-w-sm min-w-fit m-2 border  rounded-lg shadow   w-5/6  p-2 backdrop-blur-md bg-white/10 ">
-        <a href="#">
-          <img
-            className="rounded-t-lg"
-            src={`http://localhost:5000/uploads/event_business_${customKey}.jpg`}
-            alt=""
-          />
-        </a>
-        <div className="p-5">
-          <a href="#">
-            <h5 className="mb-2 text-sm  font-bold tracking-tight text-white  md:text-2xl sm:text-3xl xs:text-3xl">
-              {event.title}
-            </h5>
-          </a>
-          <p className="mb-3 font-normal text-xs text-gray-400">{event.date}</p>
-          <a
+      <Link to={`/${event.id}`}>
+        <div className="w-full h-full   rounded-md bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[1px] ">
+          <div className="max-w-sm transition-transform duration-200 hover:scale-105 m-[1px] border w-5/6   rounded-lg shadow   w-full  p-2  bg-black ">
+            <a href="#">
+              <img
+                className="rounded-t-lg lg:h-48 md:h-48 h-28 w-full object-cover object-center "
+                src={`http://localhost:5000/uploads/${event.images[0].poster_image}`}
+                alt=""
+              />
+            </a>
+            <div className="p-5">
+              <p className="mb-3 font-normal sm:text-xs text-[10px] text-gray-400">
+                Booking starts from: <br />
+                {convertedEventDate(event.start_date_toRegister)}{" "}
+              </p>
+              <h5 className="mb-2 truncate text-lg  font-bold tracking-tight text-white  md:text-2xl sm:text-3xl xs:text-3xl">
+                {event.title}
+              </h5>
+              <p className="mb-3 font-normal sm:text-xs text-[10px] text-gray-200">
+                {convertedEventDate(event.start_date)}-{" "}
+                {convertedEventDate(event.end_date)}
+              </p>
+
+              {/* <a
             href="#"
             className="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white  rounded-lg   bg-blue-600 hover:bg-blue-700 focus:ring-blue-800"
           >
@@ -42,9 +72,11 @@ const EventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
                 d="M1 5h12m0 0L9 1m4 4L9 9"
               />
             </svg>
-          </a>
+          </a> */}
+            </div>
+          </div>
         </div>
-      </div>
+      </Link>
     </>
   );
 };

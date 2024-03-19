@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthProvider";
+import { Button } from "flowbite-react";
+import { IoMdAdd } from "react-icons/io";
+import { Link } from "react-router-dom";
 
 const Nav = () => {
   const { auth, setAuth } = useAuth();
@@ -36,7 +39,13 @@ const Nav = () => {
         }}
         className="px-4 py-2 text-white flex   justify-between bg-black"
       >
-        <h1 className="font-custom font-extrabold text-2xl">easyevents</h1>
+        <div className="flex justify-center">
+          <Link to="/">
+            <h1 className="font-custom font-extrabold text-2xl align-middle">
+              easyevents
+            </h1>
+          </Link>
+        </div>
         <div
           className={
             toggleMenu
@@ -85,17 +94,28 @@ const Nav = () => {
             )}
           </ul>
         </div>
-        <div className="cursor-pointer md:hidden">
-          <input className="menu-btn hidden" type="checkbox" id="menu-btn" />
-          <label
-            className="menu-icon block cursor-pointer md:hidden px-2 py-4 relative select-none"
-            htmlFor="menu-btn"
-          >
-            <span
-              onClick={handleToggle}
-              className="navicon bg-white-darkest flex items-center relative"
-            ></span>
-          </label>
+        <div className="flex ">
+          {!toggleMenu && (
+            <div className="flex items-center">
+              <Link to="/addevent">
+                <Button>
+                  <IoMdAdd /> Add event{" "}
+                </Button>
+              </Link>
+            </div>
+          )}
+          <div className="cursor-pointer md:hidden">
+            <input className="menu-btn hidden" type="checkbox" id="menu-btn" />
+            <label
+              className="menu-icon block cursor-pointer md:hidden px-2 py-4 relative select-none"
+              htmlFor="menu-btn"
+            >
+              <span
+                onClick={handleToggle}
+                className="navicon bg-white-darkest flex items-center relative"
+              ></span>
+            </label>
+          </div>
         </div>
       </div>
     </header>

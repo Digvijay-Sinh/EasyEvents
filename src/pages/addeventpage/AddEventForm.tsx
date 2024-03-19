@@ -1,11 +1,12 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { Button } from "flowbite-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Dispatch } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { MdAddBox } from "react-icons/md";
 import * as yup from "yup";
+import { DevTool } from "@hookform/devtools";
 
 enum EventMode {
   OFFLINE = "OFFLINE",
@@ -24,6 +25,15 @@ interface Venue {
   google_place_id?: string | null;
 }
 
+interface Category {
+  id: number;
+  name: string;
+}
+interface Type {
+  id: number;
+  name: string;
+}
+
 const schema = yup.object().shape({
   title: yup.string().required("Event Title is required"),
   description: yup.string().required("Event Description is required"),
@@ -34,19 +44,24 @@ const schema = yup.object().shape({
     .required("Event End Date is required"),
   start_date_toRegister: yup
     .date()
-    .required("Registration Start Date is required"),
+    .required("Registration Start Date is required")
+    .max(
+      yup.ref("start_date"),
+      "Registration start date must be before event start date"
+    ),
+
   end_date_toRegister: yup
     .date()
     .required("End Date to Register is required")
     .test(
       "end_date_toRegister",
-      "Registration end date must be before start date",
+      "Registration end date must be before start date and registration start date",
       function (value) {
         const { start_date, start_date_toRegister } = this.parent;
         // Custom validation logic
         return (
           new Date(value) <= new Date(start_date) &&
-          new Date(value) <= new Date(start_date_toRegister)
+          new Date(value) >= new Date(start_date_toRegister)
         );
       }
     ),
@@ -55,10 +70,7 @@ const schema = yup.object().shape({
     .oneOf(Object.values(EventMode))
     .required("Event Mode is required"),
   capacity: yup.number().integer().required("Event Capacity is required"),
-  price: yup
-    .number()
-    .required("Ticket Price is required")
-    .required("Price is required"),
+  price: yup.number().required("Ticket Price is required"),
   organizer_id: yup.number().required("Organizer ID is required"),
   venue_id: yup.number().required("Venue ID is required"),
   category_id: yup.number().required("Category ID is required"),
@@ -96,8 +108,34 @@ const formDataVenueSchema = yup.object().shape({
   country: yup.string().required("Country is required"),
 });
 
-const AddEventForm: React.FC = () => {
+type props = {
+  showForm1: boolean;
+  setShowForm1: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm2: boolean;
+  setShowForm2: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm3: boolean;
+  setShowForm3: React.Dispatch<React.SetStateAction<boolean>>;
+  showForm4: boolean;
+  setShowForm4: React.Dispatch<React.SetStateAction<boolean>>;
+  eventId: number;
+  setEventId: React.Dispatch<React.SetStateAction<number>>;
+};
+
+const AddEventForm: React.FC<props> = ({
+  eventId,
+  setEventId,
+  showForm1,
+  showForm2,
+  showForm3,
+  setShowForm4,
+  setShowForm1,
+  setShowForm2,
+  setShowForm3,
+  showForm4,
+}) => {
   const [venues, setVenues] = useState<Venue[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [types, setTypes] = useState<Type[]>([]);
 
   // Function to fetch venues from the backend
   const fetchVenues = async () => {
@@ -136,19 +174,89 @@ const AddEventForm: React.FC = () => {
       console.log(error);
     }
   };
+  const fetchCategories = async () => {
+    try {
+      // Make a GET request to fetch categories from the backend
+      const response = await axios.get<Category[]>(
+        "http://localhost:5000/api/v1/category"
+      );
+
+      console.log(response.data);
+
+      // Set the fetched categories in the state
+      setCategories(response.data);
+
+      console.log("============categories======");
+      console.log(categories);
+
+      console.log("=========categories==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
+  };
+
+  const fetchTypes = async () => {
+    try {
+      // Make a GET request to fetch types from the backend
+      const response = await axios.get<Type[]>(
+        "http://localhost:5000/api/v1/types"
+      );
+
+      console.log(response.data);
+
+      // Set the fetched types in the state
+      setTypes(response.data);
+
+      console.log("============types======");
+      console.log(types);
+
+      console.log("=========types==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
+  };
 
   // Call fetchVenues function when component mounts
   useEffect(() => {
     fetchVenues();
+    fetchCategories();
+    fetchTypes();
   }, []); // Empty dependency array ensures it runs only once when the component mounts
+  const [venueId, setVenueId] = useState("");
 
-  useEffect(() => {
-    console.log("============venues======");
-    console.log(venues);
-  }, [venues]);
   const [showAddVenueForm, setShowAddVenueForm] = useState(false);
-  const { register, handleSubmit, formState, setValue, getValues } =
-    useForm<FormData>({
+  const { register, handleSubmit, control, formState, setValue, getValues } =
+    useForm({
       defaultValues: {
         title: "",
         description: "",
@@ -164,7 +272,7 @@ const AddEventForm: React.FC = () => {
         category_id: 0,
         type_id: 0,
       },
-      resolver: yupResolver(schema) as Resolver<FormData>,
+      resolver: yupResolver(schema),
     });
   const {
     register: registerVenue,
@@ -180,12 +288,55 @@ const AddEventForm: React.FC = () => {
     },
     resolver: yupResolver(formDataVenueSchema) as Resolver<FormDataVenue>,
   });
-
+  useEffect(() => {
+    console.log("============venues======");
+    setValue("venue_id", parseInt(venueId));
+    console.log(venues);
+  }, [venues]);
   const { errors } = formState;
   const { errors: errorsVenue } = formStateVenue;
 
-  const onSubmit = (data: FormData) => {
-    // Handle form submission
+  const onSubmit = async (data: FormData) => {
+    console.log("reached");
+
+    try {
+      const initialDatetime = new Date(data.start_date);
+      const initialDatetime1 = new Date(data.end_date);
+      const initialDatetime2 = new Date(data.start_date_toRegister);
+      const initialDatetime3 = new Date(data.end_date_toRegister);
+      // const finalDatetime = new Date(
+      //   initialDatetime.getTime() +
+      //     4 * 24 * 60 * 60 * 1000 +
+      //     1 * 60 * 60 * 1000 +
+      //     48 * 60 * 1000
+      // );
+      // console.log(finalDatetime);
+
+      // Make a POST request to your backend API endpoint
+      const response = await axios.post("http://localhost:5000/api/v1/events", {
+        ...data,
+        organizer_id: 1,
+        start_date: initialDatetime.toISOString(),
+        end_date: initialDatetime1.toISOString(),
+        start_date_toRegister: initialDatetime2.toISOString(),
+        end_date_toRegister: initialDatetime3.toISOString(),
+      });
+      toast.success("Step 1 completed successfully");
+      setShowForm1(false);
+      setShowForm2(true);
+      setShowForm3(false);
+      setShowForm4(false);
+
+      console.log("response", response.data.data.id);
+      setEventId(response.data.data.id);
+
+      // Handle the response
+      console.log("Response:", response.data);
+    } catch (error) {
+      // Handle any errors
+      toast.error("An error occurred while adding the venue");
+      console.error("Error:", error);
+    }
     console.log(data);
   };
   const onSubmitVenue = async (data: FormDataVenue) => {
@@ -206,6 +357,7 @@ const AddEventForm: React.FC = () => {
       await fetchVenues();
       console.log("fetchVenues", venues);
       setValue("venue_id", response.data.data.id);
+      setVenueId(response.data.data.id.toString());
       const avshas = getValues("venue_id");
       console.log(avshas);
 
@@ -231,7 +383,7 @@ const AddEventForm: React.FC = () => {
           <h1 className="text-xl font-bold leading-tight tracking-tight  md:text-2xl text-white">
             Create an Event
           </h1>
-          {showAddVenueForm ? (
+          {showAddVenueForm && (
             <div className="border-2 border-solid border-gray-600 p-2 rounded-lg">
               <form
                 className="space-y-4 md:space-y-6"
@@ -362,72 +514,8 @@ const AddEventForm: React.FC = () => {
                         </div>
                       </div> */}
             </div>
-          ) : (
-            <div>
-              <label className="block mb-2 text-sm font-medium text-white">
-                Event Venue
-              </label>
-              <select
-                id="mode"
-                // value={category}
-                // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
-                className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
-                value={getValues("venue_id")} // Set the value attribute to the selected venue ID
-                onChange={(e) => {
-                  setValue("venue_id", e.target.value); // Update the value when the dropdown selection changes
-                }}
-                {...register("venue_id", {
-                  required: {
-                    value: true,
-                    message: "Atleast One category is required!!",
-                  },
-                })}
-              >
-                <option value="">Select venue</option>
-
-                {venues.map((venue) => (
-                  <option key={venue.id} value={venue.id}>
-                    <div>{venue.name},</div>
-                    <div>{venue.address},</div>
-                    <div>
-                      {" "}
-                      {venue.city},{venue.state},{venue.country}
-                    </div>
-                  </option>
-                ))}
-                {/* 
-                <option value="ONLINE">Online</option>
-                <option value="OFFLINE">Offline</option> */}
-              </select>
-              <div>
-                {errors.venue_id ? (
-                  <p className="text-red-500 text-xs italic">
-                    {errors.venue_id.message}
-                  </p>
-                ) : (
-                  <div style={{ height: "1rem" }} />
-                )}
-              </div>{" "}
-            </div>
           )}
-          <div className="w-full flex justify-end ">
-            <Button
-              onClick={() => {
-                setShowAddVenueForm(!showAddVenueForm);
-              }}
-              className="m-4"
-              type="button"
-            >
-              <span className="text-2xl mr-1">
-                <MdAddBox />
-              </span>
-              {showAddVenueForm ? (
-                <span> Close the form</span>
-              ) : (
-                <span> Add new venue</span>
-              )}{" "}
-            </Button>
-          </div>
+
           <div>
             <div>
               <form
@@ -435,6 +523,66 @@ const AddEventForm: React.FC = () => {
                 noValidate
                 onSubmit={handleSubmit(onSubmit)}
               >
+                {!showAddVenueForm && (
+                  <div>
+                    <label className="block mb-2 text-sm font-medium text-white">
+                      Event Venue
+                    </label>
+                    <select
+                      id="mode"
+                      // value={category}
+                      // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
+                      className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
+                      {...register("venue_id", { valueAsNumber: true })}
+                      onChange={(e) =>
+                        setValue("venue_id", parseInt(e.target.value))
+                      } // Update the value when the dropdown selection changes
+                    >
+                      <option value="">Select venue</option>
+
+                      {venues.map((venue) => (
+                        <option key={venue.id} value={venue.id}>
+                          <div>{venue.name},</div>
+                          <div>{venue.address},</div>
+                          <div>
+                            {" "}
+                            {venue.city},{venue.state},{venue.country}
+                          </div>
+                        </option>
+                      ))}
+                      {/* 
+                <option value="ONLINE">Online</option>
+                <option value="OFFLINE">Offline</option> */}
+                    </select>
+                    <div>
+                      {errors.venue_id ? (
+                        <p className="text-red-500 text-xs italic">
+                          {errors.venue_id.message}
+                        </p>
+                      ) : (
+                        <div style={{ height: "1rem" }} />
+                      )}
+                    </div>{" "}
+                  </div>
+                )}
+                <div className="w-full flex justify-end ">
+                  <Button
+                    onClick={() => {
+                      setShowAddVenueForm(!showAddVenueForm);
+                    }}
+                    className="m-4"
+                    type="button"
+                  >
+                    <span className="text-2xl mr-1">
+                      <MdAddBox />
+                    </span>
+                    {showAddVenueForm ? (
+                      <span> Close the form</span>
+                    ) : (
+                      <span> Add new venue</span>
+                    )}{" "}
+                  </Button>
+                </div>
                 <div className="flex flex-col sm:flex-row w-full">
                   <div className="sm:w-1/2 w-full m-0 sm:m-4">
                     <div>
@@ -580,12 +728,7 @@ const AddEventForm: React.FC = () => {
                         // value={category}
                         // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
                         className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
-                        {...register("mode", {
-                          required: {
-                            value: true,
-                            message: "Atleast One category is required!!",
-                          },
-                        })}
+                        {...register("mode")}
                       >
                         <option value="">Select mode</option>
 
@@ -611,17 +754,15 @@ const AddEventForm: React.FC = () => {
                         // value={category}
                         // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
                         className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
-                        {...register("category_id", {
-                          required: {
-                            value: true,
-                            message: "Atleast One category is required!!",
-                          },
-                        })}
+                        {...register("category_id", { valueAsNumber: true })}
                       >
                         <option value="">Select Category</option>
 
-                        <option value="Online">Business</option>
-                        <option value="Offline">Technical</option>
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>
+                            <div>{category.name},</div>
+                          </option>
+                        ))}
                       </select>
                       <div>
                         {errors.category_id ? (
@@ -642,17 +783,15 @@ const AddEventForm: React.FC = () => {
                         // value={category}
                         // onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setCategory(e.target.value)}
                         className=" border xt-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500focus:border-blue-500"
-                        {...register("type_id", {
-                          required: {
-                            value: true,
-                            message: "Atleast One category is required!!",
-                          },
-                        })}
+                        {...register("type_id", { valueAsNumber: true })}
                       >
                         <option value="">Select Type</option>
 
-                        <option value="Conference">Conference</option>
-                        <option value="Workshop">Workshop</option>
+                        {types.map((type) => (
+                          <option key={type.id} value={type.id}>
+                            <div>{type.name},</div>
+                          </option>
+                        ))}
                       </select>
                       <div>
                         {errors.type_id ? (
@@ -672,7 +811,7 @@ const AddEventForm: React.FC = () => {
                       </label>
                       <input
                         type="text"
-                        {...register("capacity")}
+                        {...register("capacity", { valueAsNumber: true })}
                         className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                       />
                       <div>
@@ -692,7 +831,7 @@ const AddEventForm: React.FC = () => {
                       </label>
                       <input
                         type="number"
-                        {...register("price")}
+                        {...register("price", { valueAsNumber: true })}
                         className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
                       />
                       <div>
@@ -713,6 +852,7 @@ const AddEventForm: React.FC = () => {
                   </Button>
                 </div>
               </form>
+              <DevTool control={control} /> {/* set up the dev tool */}
             </div>
           </div>
         </div>
