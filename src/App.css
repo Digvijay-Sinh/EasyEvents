@@ -19,6 +19,44 @@
     aspect-ratio: 16 / 9;
 }
 
+.aspect-ratio-rounded {
+    aspect-ratio: 16 / 16;
+}
+
+.ticket {
+    position: relative;
+    border: 2px dotted gray;
+    color: white;
+    text-align: center;
+    display: inline-block;
+    padding: 1em 2em;
+}
+
+.ticket:before,
+.ticket:after {
+    height: 90px;
+    width: 45px;
+    content: '';
+    position: absolute;
+    top: 0.9em;
+    top: calc(0.9em - 1px);
+    height: 1.2em;
+    width: 0.6em;
+    border: 2px solid gray;
+}
+
+.ticket:before {
+    left: -2px;
+    border-radius: 0 1em 1em 0;
+    border-left-color: black;
+}
+
+.ticket:after {
+    right: -2px;
+    border-radius: 1em 0 0 1em;
+    border-right-color: black;
+}
+
 @media only screen and (max-width:768px) {
     .navigation {
         width: 100%;

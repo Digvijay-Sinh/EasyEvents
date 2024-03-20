@@ -29,7 +29,7 @@ const EventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
   };
   return (
     <>
-      <Link to={`/${event.id}`}>
+      <Link to={`/event/${event.id}`}>
         <div className="w-full h-full   rounded-md bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 p-[1px] ">
           <div className="max-w-sm transition-transform duration-200 hover:scale-105 m-[1px] border w-5/6   rounded-lg shadow   w-full  p-2  bg-black ">
             <a href="#">

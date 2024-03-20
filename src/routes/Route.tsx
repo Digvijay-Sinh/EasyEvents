@@ -13,6 +13,7 @@ import FormHookTest from "../pages/formHookTest";
 import ProtectedPage from "../pages/protectedpage";
 import CheckBg from "../pages/checkbg";
 import DemoApi from "../pages/demoApi";
+import UserProfilePAge from "../pages/userprofilepage";
 
 const RouteContainer = () => {
   return (
@@ -20,6 +21,7 @@ const RouteContainer = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/event/:eventId" element={<EventPage />} />
+        <Route path="/user/:userId" element={<UserProfilePAge />} />
         <Route path="/addevent" element={<AddEventPage />}></Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
