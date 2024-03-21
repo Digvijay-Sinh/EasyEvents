@@ -11,29 +11,6 @@ import SearchBar from "./components/SearchBar";
 import toast from "react-hot-toast";
 import CategoryCard from "./components/CategoryCard";
 
-// import { Carousel } from "flowbite-react";
-
-// export enum EventType {
-//   CONFERENCE = "CONFERENCE",
-//   SEMINAR = "SEMINAR",
-//   WORKSHOP = "WORKSHOP",
-//   // Add more types as needed
-// }
-
-// export interface Event {
-//   eventID: number;
-//   title: string;
-//   description: string;
-//   date: string;
-//   location: string;
-//   virtual: boolean;
-//   offline: boolean;
-//   freeEntry: boolean;
-//   eventType: EventType; // Using enum
-//   organizerID: number;
-//   posterImage: string;
-//   thumbnailImage: string;
-// }
 interface Category {
   id: number;
   name: string;
@@ -307,9 +284,6 @@ const HomePage = () => {
               slidesToSlide={1}
               swipeable
             >
-              <div className="m-2">
-                <EventCard customKey={100} event={dummyEvent} />
-              </div>
               {events?.map((event, index) => {
                 return (
                   <div className="m-2">
@@ -412,9 +386,6 @@ const HomePage = () => {
               slidesToSlide={1}
               swipeable
             >
-              <div className="m-2">
-                <EventCard customKey={100} event={dummyEvent} />
-              </div>
               {events?.map((event, index) => {
                 return (
                   <div className="m-2">

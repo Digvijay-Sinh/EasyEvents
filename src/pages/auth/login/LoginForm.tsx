@@ -71,7 +71,7 @@ const LoginForm = () => {
         console.log(auth);
         toast.success("Login successful");
 
-        navigate("/private");
+        navigate("/");
 
         console.log(JSON.stringify(res?.data));
       }

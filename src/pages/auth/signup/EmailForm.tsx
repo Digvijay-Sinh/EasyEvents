@@ -4,8 +4,10 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useState } from "react";
 
 type FormData = {
+  name: string;
   email: string;
   terms: boolean;
 };
@@ -17,6 +19,7 @@ type Props = {
 };
 
 const schema = yup.object().shape({
+  name: yup.string().required("Name is required"),
   email: yup
     .string()
     .email("Email should be in correct format")
@@ -29,8 +32,10 @@ const EmailForm: React.FC<Props> = ({
   setOtpTimerActive,
   setShowOtpScreen,
 }) => {
+  const [name, setName] = useState("");
   const emailForm = useForm<FormData>({
     defaultValues: {
+      name: "",
       email: "",
       terms: false,
     },
@@ -43,12 +48,12 @@ const EmailForm: React.FC<Props> = ({
     console.log("====================================");
     console.log(data);
     console.log("====================================");
-    const { email } = data;
+    const { email, name } = data;
     setEmail(email);
     try {
       const res = await axios.post(
         `http://localhost:5000/api/v1/auth/send-otp`,
-        { email }
+        { email, name }
       );
       if (res && res.data) {
         // router.push("/otp")
@@ -92,6 +97,28 @@ const EmailForm: React.FC<Props> = ({
       >
         <div>
           <label
+            htmlFor="name"
+            className="block mb-2 text-sm font-medium text-white"
+          >
+            Your Name
+          </label>
+          <input
+            {...register("name")}
+            type="text"
+            id="name"
+            className=" border   sm:text-sm rounded-lg  block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+            placeholder="Enter your name"
+          />
+          <div className="mt-1">
+            {errors.email ? (
+              <p className="text-red-500 text-xs italic">
+                {errors.email?.message}{" "}
+              </p>
+            ) : (
+              <div style={{ height: "1rem" }} />
+            )}
+          </div>
+          <label
             htmlFor="email"
             className="block mb-2 text-sm font-medium text-white"
           >
@@ -102,7 +129,7 @@ const EmailForm: React.FC<Props> = ({
             type="email"
             id="email"
             className=" border   sm:text-sm rounded-lg  block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-            placeholder="name@company.com"
+            placeholder="abc@abc.com"
           />
           <div className="mt-1">
             {errors.email ? (

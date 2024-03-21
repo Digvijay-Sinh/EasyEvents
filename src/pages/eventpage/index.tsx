@@ -360,7 +360,7 @@ const EventPage = () => {
                   handleCloseModal={handleCloseModal}
                   eventId={event?.id}
                   eventPrice={event?.price}
-                  userId={1}
+                  userId={2}
                 />
               </div>
             )}

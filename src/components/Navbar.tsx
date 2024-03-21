@@ -14,6 +14,7 @@ const Nav = () => {
       accessToken: "",
       email: "",
     });
+    setLoggedIn(false);
   };
   useEffect(() => {
     console.log("============auth================");
@@ -39,7 +40,7 @@ const Nav = () => {
         }}
         className="px-4 py-2 text-white flex   justify-between bg-black"
       >
-        <div className="flex justify-center">
+        <div className="flex items-center justify-center">
           <Link to="/">
             <h1 className="font-custom font-extrabold text-2xl align-middle">
               easyevents
@@ -64,24 +65,38 @@ const Nav = () => {
               </NavLink>
             </li>
 
-            <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
-              <NavLink
-                to="/signup"
-                className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
-              >
-                Signup
-              </NavLink>
-            </li>
-            {loggedIn ? (
+            {!loggedIn && (
               <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
                 <NavLink
-                  to="/login"
-                  onClick={logouthandler}
+                  to="/signup"
                   className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
                 >
-                  Log out
+                  Signup
                 </NavLink>
               </li>
+            )}
+            {loggedIn ? (
+              <>
+                {" "}
+                <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
+                  <NavLink
+                    to="/user/2"
+                    onClick={logouthandler}
+                    className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
+                  >
+                    Dashboard
+                  </NavLink>
+                </li>
+                <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
+                  <NavLink
+                    to="/login"
+                    onClick={logouthandler}
+                    className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
+                  >
+                    Log out
+                  </NavLink>
+                </li>
+              </>
             ) : (
               <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
                 <NavLink

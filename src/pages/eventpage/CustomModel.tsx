@@ -3,6 +3,8 @@ import { Button } from "flowbite-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { IoCloseSharp } from "react-icons/io5";
+import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from "uuid";
 
 interface LazyCustomModalProps {
   modalOpen: boolean;
@@ -21,10 +23,13 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
   eventPrice,
   userId,
 }) => {
+  const navigate = useNavigate();
   const [noOfTickets, setNoOfTickets] = useState(1);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      const randomString = uuidv4().replace(/-/g, "").slice(0, 16);
+
       // Make a POST request to your backend API endpoint
       const response = await axios.post(
         "http://localhost:5000/api/v1/booking",
@@ -33,11 +38,13 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           userId: userId,
           numberOfTickets: noOfTickets,
           totalAmount: noOfTickets * eventPrice,
-          bookingStatus: "pending",
-          paymentStatus: "pending",
+          bookingStatus: "Confirm",
+          paymentStatus: "Confirm",
           paymentMethod: "online",
           bookingDateTime: new Date().toISOString(),
-          bookingReference: "ABC124543XYZ",
+          bookingReference: randomString,
+
+          // Generate a random string of 16 characters alphanumeric
         },
         {
           headers: {
@@ -46,7 +53,8 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
         }
       );
       toast.success("Booking Successfull");
-
+      navigate(`/event/${eventId}`);
+      handleCloseModal();
       console.log("response", response.data.data.id);
 
       // Handle the response

@@ -315,7 +315,7 @@ const AddEventForm: React.FC<props> = ({
       // Make a POST request to your backend API endpoint
       const response = await axios.post("http://localhost:5000/api/v1/events", {
         ...data,
-        organizer_id: 1,
+        organizer_id: 2,
         start_date: initialDatetime.toISOString(),
         end_date: initialDatetime1.toISOString(),
         start_date_toRegister: initialDatetime2.toISOString(),
