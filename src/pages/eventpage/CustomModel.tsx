@@ -3,8 +3,10 @@ import { Button } from "flowbite-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { IoCloseSharp } from "react-icons/io5";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { useAuth } from "../../context/AuthProvider";
+import { axiosPrivate } from "../../api/axios";
 
 interface LazyCustomModalProps {
   modalOpen: boolean;
@@ -12,7 +14,6 @@ interface LazyCustomModalProps {
   handleCloseModal: () => void;
   eventId: number;
   eventPrice: number;
-  userId: number;
 }
 
 const CustomModal: React.FC<LazyCustomModalProps> = ({
@@ -21,9 +22,10 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
   handleCloseModal,
   eventId,
   eventPrice,
-  userId,
 }) => {
   const navigate = useNavigate();
+
+  const { auth } = useAuth();
   const [noOfTickets, setNoOfTickets] = useState(1);
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,11 +33,10 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
       const randomString = uuidv4().replace(/-/g, "").slice(0, 16);
 
       // Make a POST request to your backend API endpoint
-      const response = await axios.post(
+      const response = await axiosPrivate.post(
         "http://localhost:5000/api/v1/booking",
         {
           eventId: eventId,
-          userId: userId,
           numberOfTickets: noOfTickets,
           totalAmount: noOfTickets * eventPrice,
           bookingStatus: "Confirm",
@@ -45,11 +46,6 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           bookingReference: randomString,
 
           // Generate a random string of 16 characters alphanumeric
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
         }
       );
       toast.success("Booking Successfull");
@@ -86,67 +82,77 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           <div className="p-4 md:p-5 text-white">
             {/* main content */}
             <div className="flex w-full flex-col items-center gap-3 justify-center">
-              <form
-                className="w-full flex flex-col items-center justify-center"
-                onSubmit={onSubmit}
-              >
-                <div className="datetime flex flex-col gap-3 md:gap-0 md:flex-row justify-start mt-3 sm:w-3/4 w-3/4 ticket sm:py-3  align-middle  ">
-                  <div className="md:w-1/2 w-full flex flex-col items-center">
-                    <label className="block mb-2 text-sm font-medium text-left text-white">
-                      No. Of Tickets
-                    </label>
-                    <div className="flex gap-1 items-center">
-                      <Button
-                        onClick={() => {
-                          if (noOfTickets > 1) {
-                            setNoOfTickets(noOfTickets - 1);
+              {auth?.accessToken ? (
+                <form
+                  className="w-full flex flex-col items-center justify-center"
+                  onSubmit={onSubmit}
+                >
+                  <div className="datetime flex flex-col gap-3 md:gap-0 md:flex-row justify-start mt-3 sm:w-3/4 w-3/4 ticket sm:py-3  align-middle  ">
+                    <div className="md:w-1/2 w-full flex flex-col items-center">
+                      <label className="block mb-2 text-sm font-medium text-left text-white">
+                        No. Of Tickets
+                      </label>
+                      <div className="flex gap-1 items-center">
+                        <Button
+                          onClick={() => {
+                            if (noOfTickets > 1) {
+                              setNoOfTickets(noOfTickets - 1);
+                            }
+                          }}
+                          className="rounded-full h-7 w-7"
+                        >
+                          -
+                        </Button>
+                        <input
+                          value={noOfTickets}
+                          onChange={(e) =>
+                            setNoOfTickets(parseInt(e.target.value))
                           }
-                        }}
-                        className="rounded-full h-7 w-7"
-                      >
-                        -
-                      </Button>
-                      <input
-                        value={noOfTickets}
-                        onChange={(e) =>
-                          setNoOfTickets(parseInt(e.target.value))
-                        }
-                        type="number"
-                        disabled
-                        className="border sm:text-sm rounded-lg block w-14 h-9 p-2 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 text-center"
-                      />
-                      <Button
-                        onClick={() => {
-                          setNoOfTickets(noOfTickets + 1);
-                        }}
-                        className="rounded-full h-7 w-7"
-                      >
-                        +
-                      </Button>
+                          type="number"
+                          disabled
+                          className="border sm:text-sm rounded-lg block w-14 h-9 p-2 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500 text-center"
+                        />
+                        <Button
+                          onClick={() => {
+                            setNoOfTickets(noOfTickets + 1);
+                          }}
+                          className="rounded-full h-7 w-7"
+                        >
+                          +
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="md:w-1/2 w-full flex flex-col items-center">
+                      <label className="block mb-2 text-sm font-medium text-left text-white">
+                        Ticket Summary
+                      </label>
+                      <div className="flex gap-1 items-center">
+                        <p className="text-white text-sm ">
+                          {noOfTickets} X ₹ {eventPrice}
+                        </p>
+                        <p>
+                          <span className="text-white text-sm font-semibold">
+                            = ${noOfTickets * eventPrice}
+                          </span>
+                        </p>
+                      </div>
                     </div>
                   </div>
-                  <div className="md:w-1/2 w-full flex flex-col items-center">
-                    <label className="block mb-2 text-sm font-medium text-left text-white">
-                      Ticket Summary
-                    </label>
-                    <div className="flex gap-1 items-center">
-                      <p className="text-white text-sm ">
-                        {noOfTickets} X ₹ {eventPrice}
-                      </p>
-                      <p>
-                        <span className="text-white text-sm font-semibold">
-                          = ${noOfTickets * eventPrice}
-                        </span>
-                      </p>
-                    </div>
+                  <div>
+                    <Button className="mt-4" type="submit">
+                      Make Payment
+                    </Button>
                   </div>
+                </form>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-3">
+                  {" "}
+                  <span>You need to login first </span>
+                  <Link to="/login">
+                    <Button>Login</Button>{" "}
+                  </Link>
                 </div>
-                <div>
-                  <Button className="mt-4" type="submit">
-                    Make Payment
-                  </Button>
-                </div>
-              </form>
+              )}
             </div>
           </div>
         </div>

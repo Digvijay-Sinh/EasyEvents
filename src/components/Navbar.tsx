@@ -7,23 +7,15 @@ import { Link } from "react-router-dom";
 
 const Nav = () => {
   const { auth, setAuth } = useAuth();
-  const [loggedIn, setLoggedIn] = useState(false);
 
   const logouthandler = () => {
     setAuth({
       accessToken: "",
       email: "",
     });
-    setLoggedIn(false);
+    localStorage.removeItem("user");
   };
-  useEffect(() => {
-    console.log("============auth================");
-    console.log(auth);
-    console.log("====================================");
-    if (auth?.accessToken) {
-      setLoggedIn(true);
-    }
-  }, [auth]);
+
   const [toggleMenu, setToggleMenu] = useState(false);
 
   const handleToggle = () => {
@@ -65,23 +57,32 @@ const Nav = () => {
               </NavLink>
             </li>
 
-            {!loggedIn && (
-              <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
-                <NavLink
-                  to="/signup"
-                  className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
-                >
-                  Signup
-                </NavLink>
-              </li>
-            )}
-            {loggedIn ? (
+            {!auth?.accessToken ? (
+              <>
+                <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
+                  <NavLink
+                    to="/signup"
+                    className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
+                  >
+                    Signup
+                  </NavLink>
+                </li>
+
+                <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
+                  <NavLink
+                    to="/login"
+                    className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
+                  >
+                    Login
+                  </NavLink>
+                </li>
+              </>
+            ) : (
               <>
                 {" "}
                 <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
                   <NavLink
-                    to="/user/2"
-                    onClick={logouthandler}
+                    to="/user"
                     className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
                   >
                     Dashboard
@@ -97,15 +98,6 @@ const Nav = () => {
                   </NavLink>
                 </li>
               </>
-            ) : (
-              <li className="md:inline-block cursor-pointer hover:text-gray-500 border-b md:border-none py-2 px-3">
-                <NavLink
-                  to="/login"
-                  className="md:inline-block cursor-pointer hover:text-gray-500  md:border-none py-2 px-3"
-                >
-                  Login
-                </NavLink>
-              </li>
             )}
           </ul>
         </div>

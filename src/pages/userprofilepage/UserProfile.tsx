@@ -13,6 +13,7 @@ import { MdHistory, MdEventRepeat } from "react-icons/md";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useParams } from "react-router-dom";
+import { axiosPrivate } from "../../api/axios";
 
 interface SelectedUserData {
   id: number;
@@ -105,8 +106,6 @@ interface UserEventsDetails {
 // import EventCard from "./EventCardUser";
 
 const UserProfile: React.FC = () => {
-  const userId = useParams().userId;
-
   const [eventsDetails, setEventsDetails] = useState<UserEventsDetails>({
     userData: [],
     userParticipatedEvents: [],
@@ -143,8 +142,8 @@ const UserProfile: React.FC = () => {
   const fetchDetailedEventData = async () => {
     try {
       // Make a GET request to fetch categories from the backend
-      const response = await axios.get<UserEventsDetails>(
-        `http://localhost:5000/api/v1/events/getUserEventsDetails/${userId}`
+      const response = await axiosPrivate.get<UserEventsDetails>(
+        "/api/v1/events/getUserEventsDetails"
       );
 
       console.log(response.data);
@@ -280,7 +279,7 @@ const UserProfile: React.FC = () => {
                         <div className="posterImage ">
                           <img
                             className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
-                            src={`http://localhost:5000/uploads/${booking.booking.event.images[0].poster_image}`}
+                            src={`http://localhost:5000/uploads/${booking.booking.event.images[0]?.poster_image}`}
                             alt=""
                           />{" "}
                         </div>
@@ -345,7 +344,7 @@ const UserProfile: React.FC = () => {
                         <div className="posterImage ">
                           <img
                             className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
-                            src={`http://localhost:5000/uploads/${event.images[0].poster_image}`}
+                            src={`http://localhost:5000/uploads/${event.images[0]?.poster_image}`}
                             alt=""
                           />{" "}
                         </div>

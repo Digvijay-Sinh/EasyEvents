@@ -8,6 +8,7 @@ import { IoTimeSharp } from "react-icons/io5";
 import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useAuth } from "../../context/AuthProvider";
 const LazyCustomModal = lazy(() => import("./CustomModel"));
 
 interface Organizer {
@@ -84,6 +85,8 @@ interface Event {
 const EventPage = () => {
   const navigate = useNavigate();
   const [modalOpen, setModalOpen] = useState(false);
+
+  const { auth } = useAuth();
 
   const handleOpenModal = () => {
     setModalOpen(true);
@@ -195,7 +198,7 @@ const EventPage = () => {
           <div className="posterImage ">
             <img
               className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
-              src={`http://localhost:5000/uploads/${event?.images[0].poster_image}`}
+              src={`http://localhost:5000/uploads/${event?.images[0]?.poster_image}`}
               alt=""
             />{" "}
           </div>
@@ -247,7 +250,12 @@ const EventPage = () => {
                 </p>
               </div>
               <Button
-                onClick={() => setModalOpen(true)}
+                onClick={() => {
+                  //check if user exists in auth in useAuth
+
+                  //if yes then open modal
+                  setModalOpen(true);
+                }}
                 className="p-0 mx-auto mt-2 focus:z-0"
               >
                 Book now
@@ -360,7 +368,6 @@ const EventPage = () => {
                   handleCloseModal={handleCloseModal}
                   eventId={event?.id}
                   eventPrice={event?.price}
-                  userId={2}
                 />
               </div>
             )}

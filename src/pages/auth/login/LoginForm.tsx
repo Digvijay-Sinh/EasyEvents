@@ -62,6 +62,13 @@ const LoginForm = () => {
         //   accessToken,
         //   email,
         // });
+        localStorage.setItem(
+          "user",
+          JSON.stringify({
+            accessToken,
+            email,
+          })
+        );
         setAuth((prevAuth: AuthData) => ({
           ...prevAuth!,
           accessToken: accessToken,
@@ -69,6 +76,7 @@ const LoginForm = () => {
           // Include other properties if needed
         }));
         console.log(auth);
+
         toast.success("Login successful");
 
         navigate("/");

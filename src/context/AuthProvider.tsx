@@ -14,7 +14,13 @@
 
 // export default AuthContext;
 
-import { createContext, useState, ReactNode, useContext } from "react";
+import {
+  createContext,
+  useState,
+  ReactNode,
+  useContext,
+  useEffect,
+} from "react";
 
 // Define the type for AuthData
 export interface AuthData {
@@ -46,6 +52,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     email: "",
     accessToken: "",
   });
+
+  useEffect(() => {
+    const userData = localStorage.getItem("user");
+    if (userData) {
+      const user: AuthData = JSON.parse(userData);
+      setAuth(user);
+    }
+  }, []);
+
+  useEffect(() => {
+    console.log("====================================");
+    console.log(auth);
+    console.log("====================================");
+  }, [auth]);
 
   return (
     <AuthContext.Provider value={{ auth, setAuth }}>

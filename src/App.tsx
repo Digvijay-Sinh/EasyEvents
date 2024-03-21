@@ -11,23 +11,41 @@ function App() {
 
   const navigate = useNavigate();
   const refresh = async () => {
-    const response = await axios.get("/api/v1/auth/refreshToken", {
-      withCredentials: true,
-    });
-    if (
-      response.status === 403 ||
-      response.status === 401 ||
-      response.status === 400
-    ) {
-      navigate("/");
-      return null; // Return null or handle the error accordingly
+    try {
+      const response = await axios.get("/api/v1/auth/refreshToken", {
+        withCredentials: true,
+      });
+
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          accessToken: response.data.accessToken,
+        })
+      );
+      setAuth((prevAuth: AuthData) => ({
+        ...prevAuth!,
+        accessToken: response.data.accessToken,
+        // Include other properties if needed
+      }));
+      return response.data.accessToken;
+    } catch (error: any) {
+      if (
+        error.response.status === 403 ||
+        error.response.status === 401 ||
+        error.response.status === 400
+      ) {
+        console.log("====================================");
+        console.log("Error refreshing token");
+        console.log("====================================");
+        setAuth({
+          accessToken: "",
+          email: "",
+        });
+        localStorage.removeItem("user");
+        navigate("/login");
+        return null; // Return null or handle the error accordingly
+      }
     }
-    setAuth((prevAuth: AuthData) => ({
-      ...prevAuth!,
-      accessToken: response.data.accessToken,
-      // Include other properties if needed
-    }));
-    return response.data.accessToken;
   };
   useEffect(() => {
     const requestIntercept = axiosPrivate.interceptors.request.use(
