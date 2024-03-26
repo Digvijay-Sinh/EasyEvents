@@ -16,7 +16,6 @@ const EventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
     const userLocalDate = new Date(
       utcDate.toLocaleString("en-US", { timeZone: userTimeZone })
     );
-    console.log(userLocalDate);
 
     // Get the time portion of the date
     // const time = userLocalDate.toLocaleTimeString("en-US", {

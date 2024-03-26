@@ -8,8 +8,8 @@ interface ProtectedPageProps {
 
 const ProtectedPage: FC<ProtectedPageProps> = ({ children }) => {
   const { auth } = useAuth();
-  if (!auth) {
-    return <Navigate to="/login" />;
+  if (!auth.accessToken) {
+    return <Navigate to="/login" replace />;
   }
   return children;
 };
