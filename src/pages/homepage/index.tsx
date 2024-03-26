@@ -3,18 +3,26 @@ import Hero from "./components/Hero";
 import axios from "axios";
 import { axiosPrivate } from "../../api/axios";
 import { AuthData, useAuth } from "../../context/AuthProvider";
-import { useEffect, useState } from "react";
+import { Suspense, lazy, useEffect, useState } from "react";
 import EventCard from "./components/EventCard";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import SearchBar from "./components/SearchBar";
 import toast from "react-hot-toast";
 import CategoryCard from "./components/CategoryCard";
+import LongEventCard from "./components/LongEventCard";
+const LazyCustomModal = lazy(() => import("./components/UserInterestModal"));
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   image: string;
+}
+export interface CategoryWithEvents {
+  id: number;
+  name: string;
+  image: string;
+  events: Event[];
 }
 export interface Event {
   id: number;
@@ -43,9 +51,23 @@ export interface Image {
 
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
-
+  const [searched, setSearched] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [userInterests, setUserInterests] = useState<CategoryWithEvents[]>([]);
+  const [searchedEvents, setSearchedEvents] = useState<Event[]>([]);
+  const [recommendedBasedOnInterests, setRecommendedBasedOnInterests] =
+    useState<Event[]>([]);
+
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
 
   const fetchCategories = async () => {
     try {
@@ -121,6 +143,27 @@ const HomePage = () => {
     getAllEvents();
     fetchCategories();
   }, []);
+
+  useEffect(() => {
+    console.log("====================================");
+    console.log(userInterests);
+    console.log("====================================");
+    userInterests.map((category) => {
+      setRecommendedBasedOnInterests((prevState) => {
+        let eventsToAdd: Event[] = [];
+        userInterests.forEach((category) => {
+          eventsToAdd = [...eventsToAdd, ...category.events];
+        });
+        return [...prevState, ...eventsToAdd];
+      });
+    });
+  }, [userInterests]);
+
+  useEffect(() => {
+    console.log("====================================");
+    console.log(recommendedBasedOnInterests);
+    console.log("====================================");
+  }, [recommendedBasedOnInterests]);
 
   const navigate = useNavigate();
   const refresh = async () => {
@@ -203,6 +246,15 @@ const HomePage = () => {
       },
     ],
   };
+
+  useEffect(() => {
+    setModalOpen(true);
+
+    return () => {
+      setModalOpen(false);
+    };
+  }, []);
+
   return (
     <div
       style={{
@@ -214,213 +266,40 @@ const HomePage = () => {
       <Hero />
       <div className="cardContainer   ">
         <div>
-          <SearchBar />
+          <SearchBar
+            searchedEvents={searchedEvents}
+            setSearchedEvents={setSearchedEvents}
+            searched={searched}
+            setSearched={setSearched}
+          />
         </div>
 
-        {/* Based on interest */}
-        <div>
-          <div className="mt-10">
-            <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
-              Recommended Events <br />
-              <span className="text sm:text-base text-[0.75rem] text-gray-400">
-                Based on your interests
-              </span>
-            </h1>
-          </div>
+        {searched && (
           <div>
-            <Carousel
-              additionalTransfrom={0}
-              arrows
-              autoPlaySpeed={3000}
-              centerMode={true}
-              className="flex gap-2"
-              containerClass="container-with-dots"
-              dotListClass=""
-              draggable
-              focusOnSelect={false}
-              infinite
-              itemClass=""
-              keyBoardControl
-              minimumTouchDrag={80}
-              pauseOnHover
-              renderArrowsWhenDisabled={false}
-              renderButtonGroupOutside={false}
-              renderDotsOutside={false}
-              responsive={{
-                desktop: {
-                  breakpoint: {
-                    max: 3000,
-                    min: 1024,
-                  },
-                  items: 3,
-                  partialVisibilityGutter: 40,
-                  slidesToSlide: 3,
-                },
-                mobile: {
-                  breakpoint: {
-                    max: 464,
-                    min: 0,
-                  },
-                  items: 1,
-                  partialVisibilityGutter: 30,
-                  slidesToSlide: 1,
-                },
-                tablet: {
-                  breakpoint: {
-                    max: 1024,
-                    min: 464,
-                  },
-                  items: 2,
-                  partialVisibilityGutter: 30,
-                  slidesToSlide: 2,
-                },
-              }}
-              rewind={false}
-              rewindWithAnimation={false}
-              rtl={false}
-              shouldResetAutoplay
-              showDots={false}
-              sliderClass=""
-              slidesToSlide={1}
-              swipeable
-            >
-              {events?.map((event, index) => {
-                return (
-                  <div className="m-2">
-                    <EventCard customKey={index} event={event} />
-                  </div>
-                );
-              })}
-              {/* <EventCard /> */}
-              {/* <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard /> */}
-            </Carousel>
+            <div className="mt-10">
+              <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+                Search Results <br />
+              </h1>
+            </div>
+
+            <div className="flex flex-wrap ">
+              {searchedEvents.length > 0 &&
+                searchedEvents.map((event) => {
+                  return <LongEventCard customKey={event.id} event={event} />;
+                })}
+              {/* <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} />
+              <LongEventCard customKey={1} event={dummyEvent} /> */}
+            </div>
           </div>
-        </div>
-        {/* Based on location */}
-        <div>
-          <div className="mt-10">
-            <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
-              Recommended Events <br />
-              <span className="text sm:text-base text-[0.75rem] text-gray-400">
-                Based on your location
-              </span>
-            </h1>
-          </div>
-          <div>
-            <Carousel
-              additionalTransfrom={0}
-              arrows
-              autoPlaySpeed={3000}
-              centerMode={true}
-              className="flex gap-2"
-              containerClass="container-with-dots"
-              dotListClass=""
-              draggable
-              focusOnSelect={false}
-              infinite
-              itemClass=""
-              keyBoardControl
-              minimumTouchDrag={80}
-              pauseOnHover
-              renderArrowsWhenDisabled={false}
-              renderButtonGroupOutside={false}
-              renderDotsOutside={false}
-              responsive={{
-                desktop: {
-                  breakpoint: {
-                    max: 3000,
-                    min: 1024,
-                  },
-                  items: 3,
-                  partialVisibilityGutter: 40,
-                  slidesToSlide: 3,
-                },
-                mobile: {
-                  breakpoint: {
-                    max: 464,
-                    min: 0,
-                  },
-                  items: 1,
-                  partialVisibilityGutter: 30,
-                  slidesToSlide: 1,
-                },
-                tablet: {
-                  breakpoint: {
-                    max: 1024,
-                    min: 464,
-                  },
-                  items: 2,
-                  partialVisibilityGutter: 30,
-                  slidesToSlide: 2,
-                },
-              }}
-              rewind={false}
-              rewindWithAnimation={false}
-              rtl={false}
-              shouldResetAutoplay
-              showDots={false}
-              sliderClass=""
-              slidesToSlide={1}
-              swipeable
-            >
-              {events?.map((event, index) => {
-                return (
-                  <div className="m-2">
-                    <EventCard customKey={index} event={event} />
-                  </div>
-                );
-              })}
-              {/* <EventCard /> */}
-              {/* <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard /> */}
-            </Carousel>
-          </div>
-        </div>
+        )}
         {/* Popular categories */}
         <div>
           <div className="mt-10">
@@ -501,6 +380,206 @@ const HomePage = () => {
             </Carousel>
           </div>
         </div>
+
+        {
+          <>
+            {/* Based on interest */}
+            <div>
+              <div className="mt-10">
+                <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+                  Recommended Events <br />
+                  <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                    Based on your interests
+                  </span>
+                </h1>
+              </div>
+              <div>
+                <Carousel
+                  additionalTransfrom={0}
+                  arrows
+                  autoPlaySpeed={3000}
+                  centerMode={true}
+                  className="flex gap-2"
+                  containerClass="container-with-dots"
+                  dotListClass=""
+                  draggable
+                  focusOnSelect={false}
+                  infinite
+                  itemClass=""
+                  keyBoardControl
+                  minimumTouchDrag={80}
+                  pauseOnHover
+                  renderArrowsWhenDisabled={false}
+                  renderButtonGroupOutside={false}
+                  renderDotsOutside={false}
+                  responsive={{
+                    desktop: {
+                      breakpoint: {
+                        max: 3000,
+                        min: 1024,
+                      },
+                      items: 3,
+                      partialVisibilityGutter: 40,
+                      slidesToSlide: 3,
+                    },
+                    mobile: {
+                      breakpoint: {
+                        max: 464,
+                        min: 0,
+                      },
+                      items: 1,
+                      partialVisibilityGutter: 30,
+                      slidesToSlide: 1,
+                    },
+                    tablet: {
+                      breakpoint: {
+                        max: 1024,
+                        min: 464,
+                      },
+                      items: 2,
+                      partialVisibilityGutter: 30,
+                      slidesToSlide: 2,
+                    },
+                  }}
+                  rewind={false}
+                  rewindWithAnimation={false}
+                  rtl={false}
+                  shouldResetAutoplay
+                  showDots={false}
+                  sliderClass=""
+                  slidesToSlide={1}
+                  swipeable
+                >
+                  {events?.map((event, index) => {
+                    return (
+                      <div className="m-2">
+                        <EventCard customKey={index} event={event} />
+                      </div>
+                    );
+                  })}
+                </Carousel>
+              </div>
+            </div>
+            {/* Based on location */}
+            <div>
+              <div className="mt-10">
+                <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+                  Recommended Events <br />
+                  <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                    Based on your location
+                  </span>
+                </h1>
+              </div>
+              <div>
+                <Carousel
+                  additionalTransfrom={0}
+                  arrows
+                  autoPlaySpeed={3000}
+                  centerMode={true}
+                  className="flex gap-2"
+                  containerClass="container-with-dots"
+                  dotListClass=""
+                  draggable
+                  focusOnSelect={false}
+                  infinite
+                  itemClass=""
+                  keyBoardControl
+                  minimumTouchDrag={80}
+                  pauseOnHover
+                  renderArrowsWhenDisabled={false}
+                  renderButtonGroupOutside={false}
+                  renderDotsOutside={false}
+                  responsive={{
+                    desktop: {
+                      breakpoint: {
+                        max: 3000,
+                        min: 1024,
+                      },
+                      items: 3,
+                      partialVisibilityGutter: 40,
+                      slidesToSlide: 3,
+                    },
+                    mobile: {
+                      breakpoint: {
+                        max: 464,
+                        min: 0,
+                      },
+                      items: 1,
+                      partialVisibilityGutter: 30,
+                      slidesToSlide: 1,
+                    },
+                    tablet: {
+                      breakpoint: {
+                        max: 1024,
+                        min: 464,
+                      },
+                      items: 2,
+                      partialVisibilityGutter: 30,
+                      slidesToSlide: 2,
+                    },
+                  }}
+                  rewind={false}
+                  rewindWithAnimation={false}
+                  rtl={false}
+                  shouldResetAutoplay
+                  showDots={false}
+                  sliderClass=""
+                  slidesToSlide={1}
+                  swipeable
+                >
+                  {events?.map((event, index) => {
+                    return (
+                      <div className="m-2">
+                        <EventCard customKey={index} event={event} />
+                      </div>
+                    );
+                  })}
+                  {/* <EventCard /> */}
+                  {/* <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard />
+            <EventCard /> */}
+                </Carousel>
+              </div>
+            </div>
+          </>
+        }
+      </div>
+      <div className="">
+        <Suspense fallback={<h2>Loading...</h2>}>
+          {modalOpen && (
+            <div className="fixed inset-0 backdrop-filter backdrop-blur-lg">
+              <LazyCustomModal
+                modalOpen={modalOpen}
+                handleOpenModal={handleOpenModal}
+                handleCloseModal={handleCloseModal}
+                categories={categories}
+                setUserInterests={setUserInterests}
+                userInterests={userInterests}
+              />
+            </div>
+          )}
+        </Suspense>
       </div>
     </div>
   );

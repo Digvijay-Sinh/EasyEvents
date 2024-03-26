@@ -7,6 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "../../context/AuthProvider";
 import { axiosPrivate } from "../../api/axios";
+import { useHistory } from "react-router-dom";
 
 interface LazyCustomModalProps {
   modalOpen: boolean;
@@ -24,6 +25,7 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
   eventPrice,
 }) => {
   const navigate = useNavigate();
+  const history = useHistory();
 
   const { auth } = useAuth();
   const [noOfTickets, setNoOfTickets] = useState(1);
@@ -60,6 +62,13 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
       toast.error("An error occurred while adding the venue");
       console.error("Error:", error);
     }
+  };
+
+  const handleLoginClick = () => {
+    history.push({
+      pathname: "/login",
+      state: { data: `events/${eventId}` },
+    });
   };
   return (
     <>
@@ -148,9 +157,15 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
                 <div className="flex flex-col items-center justify-center gap-3">
                   {" "}
                   <span>You need to login first </span>
-                  <Link to="/login">
+                  <Button onClick={handleLoginClick}>Login</Button>
+                  {/* <Link
+                    to={{
+                      pathname: "/login",
+                      state: { data: dataToPass },
+                    }}
+                  >
                     <Button>Login</Button>{" "}
-                  </Link>
+                  </Link> */}
                 </div>
               )}
             </div>

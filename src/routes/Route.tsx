@@ -21,8 +21,22 @@ const RouteContainer = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/event/:eventId" element={<EventPage />} />
-        <Route path="/user" element={<UserProfilePAge />} />
-        <Route path="/addevent" element={<AddEventPage />}></Route>
+        <Route
+          path="/user"
+          element={
+            <ProtectedPage>
+              <UserProfilePAge />
+            </ProtectedPage>
+          }
+        />
+        <Route
+          path="/addevent"
+          element={
+            <ProtectedPage>
+              <AddEventPage />
+            </ProtectedPage>
+          }
+        ></Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/hookform" element={<FormHookTest />} />
