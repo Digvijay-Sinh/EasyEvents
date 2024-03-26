@@ -7,6 +7,7 @@ import toast from "react-hot-toast";
 import { MdAddBox } from "react-icons/md";
 import * as yup from "yup";
 import { DevTool } from "@hookform/devtools";
+import { axiosPrivate } from "../../api/axios";
 
 enum EventMode {
   OFFLINE = "OFFLINE",
@@ -313,14 +314,16 @@ const AddEventForm: React.FC<props> = ({
       // console.log(finalDatetime);
 
       // Make a POST request to your backend API endpoint
-      const response = await axios.post("http://localhost:5000/api/v1/events", {
-        ...data,
-        organizer_id: 2,
-        start_date: initialDatetime.toISOString(),
-        end_date: initialDatetime1.toISOString(),
-        start_date_toRegister: initialDatetime2.toISOString(),
-        end_date_toRegister: initialDatetime3.toISOString(),
-      });
+      const response = await axiosPrivate.post(
+        "http://localhost:5000/api/v1/events",
+        {
+          ...data,
+          start_date: initialDatetime.toISOString(),
+          end_date: initialDatetime1.toISOString(),
+          start_date_toRegister: initialDatetime2.toISOString(),
+          end_date_toRegister: initialDatetime3.toISOString(),
+        }
+      );
       toast.success("Step 1 completed successfully");
       setShowForm1(false);
       setShowForm2(true);

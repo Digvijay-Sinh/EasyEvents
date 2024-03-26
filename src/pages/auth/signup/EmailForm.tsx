@@ -49,6 +49,8 @@ const EmailForm: React.FC<Props> = ({
     console.log(data);
     console.log("====================================");
     const { email, name } = data;
+    const loading = toast.loading(`Sending OTP to ${email}`);
+
     setEmail(email);
     try {
       const res = await axios.post(
@@ -59,6 +61,8 @@ const EmailForm: React.FC<Props> = ({
         // router.push("/otp")
         setShowOtpScreen((prev) => !prev);
         setOtpTimerActive((prev) => !prev);
+        toast.dismiss(loading);
+
         toast.success("OTP sent succesfully");
 
         console.log(res);

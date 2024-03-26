@@ -109,10 +109,8 @@ const AddEventForm3: React.FC<props> = ({
           console.log("===========uploaded successfully===============");
           console.log(formSubmitResponse.data);
           console.log("====================================");
-          setShowForm1(false);
-          setShowForm2(false);
-          setShowForm3(false);
-          setShowForm4(true);
+
+          // setShowForm4(true);
         }
       } else {
         // Handle case where no image is selected
