@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import formbg from "../../../assets/events/formbgfinal.jpg";
 import { AuthData, useAuth } from "../../../context/AuthProvider";
 import * as yup from "yup";
@@ -23,7 +23,17 @@ const schema = yup.object().shape({
 
 const LoginForm = () => {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  let { state: fromSomewhere } = useLocation();
+  const redirectToAgain = fromSomewhere?.from;
+  console.log("====================================");
+  console.log(redirectToAgain);
+  console.log("====================================");
+  const state = location.state;
+  const redirectTo = state?.from;
+  console.log("====================================");
+  console.log(state?.from);
+  console.log("====================================");
   const loginForm = useForm<FormData>({
     defaultValues: {
       password: "",
@@ -79,7 +89,12 @@ const LoginForm = () => {
 
         toast.success("Login successful");
 
-        navigate("/");
+        if (redirectToAgain) {
+          navigate(`/${redirectToAgain ? redirectToAgain : ""}`);
+          return;
+        }
+
+        navigate(`/${redirectTo ? redirectTo : ""}`);
 
         console.log(JSON.stringify(res?.data));
       }

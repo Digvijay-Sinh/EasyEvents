@@ -16,11 +16,9 @@ const CategoryCard: React.FC<Category> = (category) => {
         }}
       />
       <div className="p-5 relative z-10">
-        <a href="#">
-          <h5 className="mb-2 truncate text-lg font-bold tracking-tight text-white md:text-2xl sm:text-3xl xs:text-3xl">
-            {category.name}
-          </h5>
-        </a>
+        <h5 className="mb-2 truncate text-lg font-bold tracking-tight text-white md:text-2xl sm:text-3xl xs:text-3xl">
+          {category.name}
+        </h5>
       </div>
     </div>
   );

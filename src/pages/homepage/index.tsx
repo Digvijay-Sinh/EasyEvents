@@ -52,10 +52,12 @@ export interface Image {
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
   const [searched, setSearched] = useState(false);
+  const [categoryWise, setCategoryWise] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [userInterests, setUserInterests] = useState<CategoryWithEvents[]>([]);
   const [searchedEvents, setSearchedEvents] = useState<Event[]>([]);
+  const [categoryWiseEvents, setCategoryWiseEvents] = useState<Event[]>([]);
   const [recommendedBasedOnInterests, setRecommendedBasedOnInterests] =
     useState<Event[]>([]);
 
@@ -67,6 +69,39 @@ const HomePage = () => {
 
   const handleCloseModal = () => {
     setModalOpen(false);
+  };
+  const fetchSearchedAndFilteredEvents = async (apiUrl: string) => {
+    try {
+      // Make a GET request to fetch categories from the backend
+      const response = await axios.get<Event[]>(apiUrl);
+
+      console.log(response.data);
+
+      // Set the fetched categories in the state
+      setCategoryWiseEvents(response.data);
+
+      console.log("============categories======");
+      console.log(searchedEvents);
+
+      console.log("=========categories==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
   };
 
   const fetchCategories = async () => {
@@ -150,13 +185,20 @@ const HomePage = () => {
     console.log("====================================");
     userInterests.map((category) => {
       setRecommendedBasedOnInterests((prevState) => {
-        let eventsToAdd: Event[] = [];
-        userInterests.forEach((category) => {
-          eventsToAdd = [...eventsToAdd, ...category.events];
-        });
-        return [...prevState, ...eventsToAdd];
+        return [...prevState, ...category.events];
       });
     });
+
+    // userInterests.map((category) => {
+    //   // setRecommendedBasedOnInterests((prevState) => {
+    //   //   return [
+    //   //     ...prevState,
+    //   //     ...category.events.filter(
+    //   //       (event) => event.category_id === category.id
+    //   //     ),
+    //   //   ];
+    //   // });
+    // });
   }, [userInterests]);
 
   useEffect(() => {
@@ -283,20 +325,17 @@ const HomePage = () => {
             </div>
 
             <div className="flex flex-wrap ">
-              {searchedEvents.length > 0 &&
+              {searchedEvents.length > 0 ? (
                 searchedEvents.map((event) => {
                   return <LongEventCard customKey={event.id} event={event} />;
-                })}
-              {/* <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} />
-              <LongEventCard customKey={1} event={dummyEvent} /> */}
+                })
+              ) : (
+                <div className="flex justify-center w-full">
+                  <h1 className="text-white text-2xl text-center">
+                    Oops! No events found
+                  </h1>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -367,7 +406,16 @@ const HomePage = () => {
               {categories?.map((category, index) => {
                 if (category.image != "") {
                   return (
-                    <div className="m-2">
+                    <div
+                      onClick={() => {
+                        setCategoryWise(category.name);
+
+                        fetchSearchedAndFilteredEvents(
+                          `http://localhost:5000/api/v1/events/search?category=${category.id}`
+                        );
+                      }}
+                      className="m-2 cursor-pointer"
+                    >
                       <CategoryCard
                         id={category.id}
                         image={category.image}
@@ -380,7 +428,29 @@ const HomePage = () => {
             </Carousel>
           </div>
         </div>
+        {categoryWise != "" && (
+          <div>
+            <div className="mt-10">
+              <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+                Selected {categoryWise} <br />
+              </h1>
+            </div>
 
+            <div className="flex flex-wrap ">
+              {categoryWiseEvents.length > 0 ? (
+                categoryWiseEvents.map((event) => {
+                  return <LongEventCard customKey={event.id} event={event} />;
+                })
+              ) : (
+                <div className="flex justify-center w-full">
+                  <h1 className="text-white text-2xl text-center">
+                    Oops! No events found
+                  </h1>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
         {
           <>
             {/* Based on interest */}
@@ -450,13 +520,22 @@ const HomePage = () => {
                   slidesToSlide={1}
                   swipeable
                 >
-                  {events?.map((event, index) => {
-                    return (
-                      <div className="m-2">
-                        <EventCard customKey={index} event={event} />
-                      </div>
-                    );
-                  })}
+                  {recommendedBasedOnInterests.length > 0 &&
+                    recommendedBasedOnInterests?.map((event, index) => {
+                      return (
+                        <div className="m-2">
+                          <EventCard customKey={index} event={event} />
+                        </div>
+                      );
+                    })}
+                  {recommendedBasedOnInterests.length === 0 &&
+                    events?.map((event, index) => {
+                      return (
+                        <div className="m-2">
+                          <EventCard customKey={index} event={event} />
+                        </div>
+                      );
+                    })}
                 </Carousel>
               </div>
             </div>
@@ -464,10 +543,10 @@ const HomePage = () => {
             <div>
               <div className="mt-10">
                 <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
-                  Recommended Events <br />
-                  <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                  Top Rated Events <br />
+                  {/* <span className="text sm:text-base text-[0.75rem] text-gray-400">
                     Based on your location
-                  </span>
+                  </span> */}
                 </h1>
               </div>
               <div>
@@ -565,22 +644,24 @@ const HomePage = () => {
           </>
         }
       </div>
-      <div className="">
-        <Suspense fallback={<h2>Loading...</h2>}>
-          {modalOpen && (
-            <div className="fixed inset-0 backdrop-filter backdrop-blur-lg">
-              <LazyCustomModal
-                modalOpen={modalOpen}
-                handleOpenModal={handleOpenModal}
-                handleCloseModal={handleCloseModal}
-                categories={categories}
-                setUserInterests={setUserInterests}
-                userInterests={userInterests}
-              />
-            </div>
-          )}
-        </Suspense>
-      </div>
+      {!auth?.accessToken && (
+        <div className="">
+          <Suspense fallback={<h2>Loading...</h2>}>
+            {modalOpen && (
+              <div className="fixed inset-0 backdrop-filter backdrop-blur-lg">
+                <LazyCustomModal
+                  modalOpen={modalOpen}
+                  handleOpenModal={handleOpenModal}
+                  handleCloseModal={handleCloseModal}
+                  categories={categories}
+                  setUserInterests={setUserInterests}
+                  userInterests={userInterests}
+                />
+              </div>
+            )}
+          </Suspense>
+        </div>
+      )}
     </div>
   );
 };

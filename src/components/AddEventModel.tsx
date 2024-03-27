@@ -25,7 +25,9 @@ const AddEventModel: React.FC<LazyCustomModalProps> = ({
   const { auth } = useAuth();
 
   const handleLoginClick = () => {
-    navigate("/login");
+    navigate("/login", {
+      state: { from: "addevent" },
+    });
     handleCloseModal();
   };
   const handleContinueClick = () => {
@@ -38,7 +40,7 @@ const AddEventModel: React.FC<LazyCustomModalProps> = ({
         className="fixed inset-0 bg-black opacity-90"
         onClick={handleCloseModal}
       ></div> */}
-      <div className="fixed bg-black top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-[58%]  md:w-[60vw] w-[90vw] flex items-center justify-center z-50">
+      <div className="fixed bg-black rounded-lg top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-[58%]  md:w-[60vw] w-[90vw] flex items-center justify-center z-50">
         <div className="bg-surface-200 h-full rounded-lg shadow-inner  shadow-slate-300 w-full ">
           <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
             <h3 className="text-xl font-semibold text-white">

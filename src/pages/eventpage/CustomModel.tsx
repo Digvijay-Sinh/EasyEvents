@@ -7,7 +7,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { useAuth } from "../../context/AuthProvider";
 import { axiosPrivate } from "../../api/axios";
-import { useHistory } from "react-router-dom";
 
 interface LazyCustomModalProps {
   modalOpen: boolean;
@@ -25,7 +24,6 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
   eventPrice,
 }) => {
   const navigate = useNavigate();
-  const history = useHistory();
 
   const { auth } = useAuth();
   const [noOfTickets, setNoOfTickets] = useState(1);
@@ -64,19 +62,19 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
     }
   };
 
-  const handleLoginClick = () => {
-    history.push({
-      pathname: "/login",
-      state: { data: `events/${eventId}` },
-    });
-  };
+  // const handleLoginClick = () => {
+  //   history.push({
+  //     pathname: "/login",
+  //     state: { data: `events/${eventId}` },
+  //   });
+  // };
   return (
     <>
       {/* <div
         className="fixed inset-0 bg-black opacity-90"
         onClick={handleCloseModal}
       ></div> */}
-      <div className="fixed bg-black top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-[58%]  md:w-[60vw] w-[90vw] flex items-center justify-center z-50">
+      <div className="fixed bg-black rounded-lg top-[50%] left-1/2 transform -translate-x-1/2 -translate-y-[58%]  md:w-[60vw] w-[90vw] flex items-center justify-center z-50">
         <div className="bg-surface-200 h-full rounded-lg shadow-inner  shadow-slate-300 w-full ">
           <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
             <h3 className="text-xl font-semibold text-white">Book Event</h3>
@@ -157,15 +155,9 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
                 <div className="flex flex-col items-center justify-center gap-3">
                   {" "}
                   <span>You need to login first </span>
-                  <Button onClick={handleLoginClick}>Login</Button>
-                  {/* <Link
-                    to={{
-                      pathname: "/login",
-                      state: { data: dataToPass },
-                    }}
-                  >
+                  <Link to="/login" state={{ from: `event/${eventId}` }}>
                     <Button>Login</Button>{" "}
-                  </Link> */}
+                  </Link>
                 </div>
               )}
             </div>

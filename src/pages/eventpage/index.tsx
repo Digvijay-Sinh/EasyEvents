@@ -11,7 +11,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthProvider";
 const LazyCustomModal = lazy(() => import("./CustomModel"));
 
-interface Organizer {
+export interface Organizer {
   id: number;
   email: string;
   name: string;
@@ -21,7 +21,7 @@ interface Organizer {
   refreshToken: string;
 }
 
-interface Venue {
+export interface Venue {
   id: number;
   name: string;
   latitude: number | null;
@@ -33,18 +33,18 @@ interface Venue {
   google_place_id: string;
 }
 
-interface Category {
+export interface Category {
   id: number;
   name: string;
   image: string;
 }
 
-interface Type {
+export interface Type {
   id: number;
   name: string;
 }
 
-interface Speaker {
+export interface Speaker {
   id: number;
   name: string;
   bio: string;
@@ -53,13 +53,13 @@ interface Speaker {
   image: string;
 }
 
-interface Image {
+export interface Image {
   id: number;
   poster_image: string;
   event_id: number;
 }
 
-interface Event {
+export interface Event {
   id: number;
   title: string;
   description: string;

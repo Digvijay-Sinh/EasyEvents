@@ -1,23 +1,25 @@
-import React, { FC } from "react";
-import { Navigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthProvider";
+import React, { FC, useEffect } from "react";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { AuthData, useAuth } from "../../context/AuthProvider";
 
-interface ProtectedPageProps {
-  children: React.ReactNode;
-}
+// interface ProtectedPageProps {
+//   children: React.ReactNode;
+// }
 
-const ProtectedPage: FC<ProtectedPageProps> = ({ children }) => {
-  const { auth } = useAuth();
-  console.log("====================================");
-  console.log(auth);
-  console.log("====================================");
-  if (!auth?.accessToken) {
-    console.log("====================================");
-    console.log("Redirecting to login");
-    console.log("====================================");
-    // return <Navigate to="/login" replace />;
-  }
-  return children;
+const ProtectedPage = () => {
+  const { auth, setAuth } = useAuth();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!auth?.accessToken) {
+      console.log("====================================");
+      console.log(auth?.accessToken);
+      console.log("====================================");
+      // If user is not authenticated, redirect to login page
+      navigate("/login");
+    }
+  }, [auth]);
+
+  return <Outlet />;
 };
 
 export default ProtectedPage;

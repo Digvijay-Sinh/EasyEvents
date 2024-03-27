@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { RiAccountCircleFill } from "react-icons/ri";
-import { MdEmail } from "react-icons/md";
-import { FaPhoneAlt } from "react-icons/fa";
-import { Card } from "flowbite-react";
+import { MdDelete, MdEmail } from "react-icons/md";
+import { FaEdit, FaPhoneAlt } from "react-icons/fa";
+import { Button, Card } from "flowbite-react";
 import { MdDateRange } from "react-icons/md";
 import { TbStatusChange } from "react-icons/tb";
 import { RiSecurePaymentFill } from "react-icons/ri";
@@ -12,8 +12,9 @@ import { MdDashboard } from "react-icons/md";
 import { MdHistory, MdEventRepeat } from "react-icons/md";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { axiosPrivate } from "../../api/axios";
+import { Link } from "react-router-dom";
 
 interface SelectedUserData {
   id: number;
@@ -111,6 +112,7 @@ const UserProfile: React.FC = () => {
     userParticipatedEvents: [],
     organizerEvents: [],
   });
+  const navigate = useNavigate();
   const convertedEventDate = (backendDate: string) => {
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -274,67 +276,69 @@ const UserProfile: React.FC = () => {
                 {eventsDetails.userParticipatedEvents.length > 0 ? (
                   eventsDetails.userParticipatedEvents.map((booking) => {
                     return (
-                      <div className="flex sm:w-full w-full  sm:border border-gray-700  flex-col sm:flex-row rounded-xl mt-3">
-                        {/* Profile Side */}
-                        <div className="sm:w-1/3 flex items-center sm:p-4 w-full p-1">
-                          <div className="posterImage ">
-                            <img
-                              className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
-                              src={`http://localhost:5000/uploads/${booking.booking.event.images[0]?.poster_image}`}
-                              alt=""
-                            />{" "}
+                      <Link to={`/event/${booking.booking.event.id}`}>
+                        <div className="flex sm:w-full w-full  sm:border border-gray-700  flex-col sm:flex-row rounded-xl mt-3">
+                          {/* Profile Side */}
+                          <div className="sm:w-1/3 flex items-center sm:p-4 w-full p-1">
+                            <div className="posterImage ">
+                              <img
+                                className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
+                                src={`http://localhost:5000/uploads/${booking.booking.event.images[0]?.poster_image}`}
+                                alt=""
+                              />{" "}
+                            </div>
                           </div>
-                        </div>
-                        {/* Bookings Table Side */}
-                        <div className="sm:w-2/3 sm:p-4 w-full p-1 ">
-                          <div className="datetime flex items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
-                            <div className="flex flex-col gap-3">
-                              {" "}
-                              <div className="username w-full flex gap-2 justify-between items-center">
-                                <span className="text-sm   md:text-base text-white m-0">
-                                  {booking.booking.event.title}
-                                </span>
-                                <span className="text-sm max-w-fit p-3 rounded-lg bg-gradient-to-r from-fuchsia-600 to-pink-600   md:text-base text-white m-0">
-                                  {booking.booking.numberOfTickets} x ₹{" "}
-                                  {booking.booking.event.price} = ₹{" "}
-                                  {booking.booking.totalAmount}
-                                </span>
-                              </div>
-                              <div className="username flex gap-2">
-                                <MdDateRange className="text-yellow-300 mr-2 text-xl md:text-2xl" />
+                          {/* Bookings Table Side */}
+                          <div className="sm:w-2/3 sm:p-4 w-full p-1 ">
+                            <div className="datetime flex items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+                              <div className="flex flex-col gap-3">
+                                {" "}
+                                <div className="username w-full flex gap-2 justify-between items-center">
+                                  <span className="text-sm   md:text-base text-white m-0">
+                                    {booking.booking.event.title}
+                                  </span>
+                                  <span className="text-sm max-w-fit p-3 rounded-lg bg-gradient-to-r from-fuchsia-600 to-pink-600   md:text-base text-white m-0">
+                                    {booking.booking.numberOfTickets} x ₹{" "}
+                                    {booking.booking.event.price} = ₹{" "}
+                                    {booking.booking.totalAmount}
+                                  </span>
+                                </div>
+                                <div className="username flex gap-2">
+                                  <MdDateRange className="text-yellow-300 mr-2 text-xl md:text-2xl" />
 
-                                <span className="text-sm   md:text-base text-white m-0">
-                                  {convertedEventDate(
-                                    booking.booking.event?.start_date
-                                  )}
-                                  -
-                                  {convertedEventDate(
-                                    booking.booking.event?.end_date
-                                  )}
-                                </span>
-                              </div>
-                              <div className="username flex gap-2">
-                                <TbStatusChange className="text-yellow-300 mr-2 text-xl md:text-2xl" />
+                                  <span className="text-sm   md:text-base text-white m-0">
+                                    {convertedEventDate(
+                                      booking.booking.event?.start_date
+                                    )}
+                                    -
+                                    {convertedEventDate(
+                                      booking.booking.event?.end_date
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="username flex gap-2">
+                                  <TbStatusChange className="text-yellow-300 mr-2 text-xl md:text-2xl" />
 
-                                <span className="text-sm   md:text-base text-white m-0">
-                                  Booking Status:{" "}
-                                  {booking.booking.bookingStatus}
-                                </span>
-                              </div>
-                              <div className="username flex gap-2">
-                                <RiSecurePaymentFill className="text-yellow-300 mr-2 text-xl md:text-2xl" />
-                                <span className="text-sm   md:text-base text-white m-0">
-                                  Payment Status:{" "}
-                                  {booking.booking.paymentStatus}
-                                </span>
-                              </div>
-                              {/* <span className="text-sm   md:text-base text-white m-0">
+                                  <span className="text-sm   md:text-base text-white m-0">
+                                    Booking Status:{" "}
+                                    {booking.booking.bookingStatus}
+                                  </span>
+                                </div>
+                                <div className="username flex gap-2">
+                                  <RiSecurePaymentFill className="text-yellow-300 mr-2 text-xl md:text-2xl" />
+                                  <span className="text-sm   md:text-base text-white m-0">
+                                    Payment Status:{" "}
+                                    {booking.booking.paymentStatus}
+                                  </span>
+                                </div>
+                                {/* <span className="text-sm   md:text-base text-white m-0">
                 {event?.end_date}
               </span> */}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      </Link>
                     );
                   })
                 ) : (
@@ -359,7 +363,7 @@ const UserProfile: React.FC = () => {
                           </div>
                         </div>
                         {/* Bookings Table Side */}
-                        <div className="sm:w-2/3 sm:p-4 w-full p-1 ">
+                        <div className="sm:w-2/3 justify-between sm:p-4 w-full p-1 flex flex-col">
                           <div className="datetime flex items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
                             <div className="flex flex-col gap-3">
                               {" "}
@@ -397,6 +401,25 @@ const UserProfile: React.FC = () => {
                               {/* <span className="text-sm   md:text-base text-white m-0">
                 {event?.end_date}
               </span> */}
+                            </div>
+                          </div>
+                          <div className="datetime flex justify-end items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+                            <div className="flex flex-col gap-3">
+                              {" "}
+                              <div className="username w-full flex gap-2 justify-between items-center">
+                                <Button
+                                  onClick={() => {
+                                    navigate(`/editevent/${event.id}`);
+                                  }}
+                                >
+                                  <FaEdit className="text-xl mr-2" /> Update
+                                  Event
+                                </Button>
+                                <Button className="bg-red-700">
+                                  <MdDelete className="text-xl mr-2" />
+                                  Delete Event
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>

@@ -1,25 +1,80 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 // import DemoAddEvent from "./DemoAddEvent";
-import AddEventForm from "./AddEventForm";
-import { useState } from "react";
-import AddEventForm22 from "./AddEventForm22";
-import AddEventForm3 from "./AddEventForm3";
-import AddEventForm4 from "./AddEventForm4";
+import EditEventForm from "./EditEventForm";
+import { useEffect, useState } from "react";
+import EditEventForm22 from "./EditEventForm22";
+import EditEventForm3 from "./EditEventForm3";
+import {
+  Category,
+  Event,
+  Image,
+  Organizer,
+  Speaker,
+  Type,
+  Venue,
+} from "../eventpage/index";
+import axios from "axios";
+import toast from "react-hot-toast";
 
-const AddEventPage = () => {
+const EditEventPage = () => {
   const navigate = useNavigate();
-  const [eventId, setEventId] = useState(0); // [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
+  // const [eventId, setEventId] = useState(0); // [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15
   const [showForm1, setShowForm1] = useState(true);
   const [showForm2, setShowForm2] = useState(false);
   const [showForm3, setShowForm3] = useState(false);
   const [showForm4, setShowForm4] = useState(false);
+  const [event, setEvent] = useState<Event>();
+
+  const eventId = parseInt(useParams().eventId as string);
+
+  const fetchDetailedEventData = async () => {
+    try {
+      // Make a GET request to fetch categories from the backend
+      const response = await axios.get<Event[]>(
+        `http://localhost:5000/api/v1/events/detailed/${eventId}`
+      );
+
+      console.log(response.data);
+
+      // Set the fetched categories in the state
+      setEvent(response.data[0]);
+
+      console.log("=========categories==============");
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        // Handle Axios errors
+        if (error.response && error.response.data) {
+          // Handle specific error messages from backend
+          const errorMessage = error.response.data.message;
+          toast.error(errorMessage);
+        } else {
+          // Other errors
+          toast.error("An error occurred");
+        }
+      } else {
+        // Handle non-Axios errors
+        toast.error("An error occurred");
+        console.error("An error occurred:", error);
+      }
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchDetailedEventData();
+  }, []);
+  useEffect(() => {
+    console.log("====================================");
+    console.log(event);
+    console.log("====================================");
+  }, [event]);
 
   const formShow = () => {
     if (showForm1 && !showForm2 && !showForm3 && !showForm4) {
       return (
-        <AddEventForm
+        <EditEventForm
+          event={event}
           eventId={eventId}
-          setEventId={setEventId}
           showForm1={showForm1}
           showForm2={showForm2}
           showForm3={showForm3}
@@ -33,9 +88,9 @@ const AddEventPage = () => {
     }
     if (!showForm1 && showForm2 && !showForm3 && !showForm4) {
       return (
-        <AddEventForm22
+        <EditEventForm22
+          event={event}
           eventId={eventId}
-          setEventId={setEventId}
           showForm1={showForm1}
           showForm2={showForm2}
           showForm3={showForm3}
@@ -49,9 +104,9 @@ const AddEventPage = () => {
     }
     if (!showForm1 && !showForm2 && showForm3 && !showForm4) {
       return (
-        <AddEventForm3
+        <EditEventForm3
           eventId={eventId}
-          setEventId={setEventId}
+          event={event}
           showForm1={showForm1}
           showForm2={showForm2}
           showForm3={showForm3}
@@ -64,7 +119,7 @@ const AddEventPage = () => {
       );
     }
     // if (!showForm1 && !showForm2 && !showForm3 && showForm4) {
-    //   return <AddEventForm4
+    //   return <EditEventForm4
     //   eventId={eventId}
     //   setEventId={setEventId}
     //   showForm1={showForm1}
@@ -96,7 +151,14 @@ const AddEventPage = () => {
 
             text-blue-600 dark:text-blue-500 sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700`}
           >
-            <span className="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
+            <span
+              onClick={() => {
+                setShowForm1(true);
+                setShowForm2(false);
+                setShowForm3(false);
+              }}
+              className="flex cursor-pointer items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500"
+            >
               {(!showForm1 && showForm2) || (!showForm1 && showForm3) ? (
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 me-2.5"
@@ -120,7 +182,14 @@ const AddEventPage = () => {
             ${showForm3 && !showForm2 ? "text-green-500" : "text-blue-500"}
             text-blue-600 dark:text-blue-500 sm:after:content-[''] after:w-full after:h-1 after:border-b after:border-gray-200 after:border-1 after:hidden sm:after:inline-block after:mx-6 xl:after:mx-10 dark:after:border-gray-700`}
           >
-            <span className="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
+            <span
+              onClick={() => {
+                setShowForm2(true);
+                setShowForm1(false);
+                setShowForm3(false);
+              }}
+              className="flex items-center cursor-pointer after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500"
+            >
               {!showForm2 && showForm3 ? (
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 me-2.5"
@@ -143,7 +212,14 @@ const AddEventPage = () => {
             } `}
           >
             {" "}
-            <span className="flex items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500">
+            <span
+              onClick={() => {
+                setShowForm3(true);
+                setShowForm2(false);
+                setShowForm1(false);
+              }}
+              className="flex cursor-pointer items-center after:content-['/'] sm:after:hidden after:mx-2 after:text-gray-200 dark:after:text-gray-500"
+            >
               {showForm3 ? (
                 <svg
                   className="w-3.5 h-3.5 sm:w-4 sm:h-4 me-2.5"
@@ -162,8 +238,8 @@ const AddEventPage = () => {
           </li>
         </ol>
       </div>
-      <div>{formShow()}</div>
-      {/* AddEventPage
+      <div>{event && formShow()}</div>
+      {/* EditEventPage
       <div>
         <button
           className="bg-slate-500"
@@ -178,4 +254,4 @@ const AddEventPage = () => {
   );
 };
 
-export default AddEventPage;
+export default EditEventPage;

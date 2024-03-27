@@ -106,7 +106,6 @@ const SearchInput: React.FC<props> = ({ searched, setSearched }) => {
           id="search-dropdown"
           className="block p-2.5 w-full z-20 text-sm rounded-lg border-s-2 border focus:ring-cyan-500 bg-gray-700 border-s-gray-700 border-cyan-600 placeholder-gray-400 text-white focus:border-cyan-500"
           placeholder="Search Mockups, Logos, Design Templates..."
-          required
         />
         <button
           type="submit"

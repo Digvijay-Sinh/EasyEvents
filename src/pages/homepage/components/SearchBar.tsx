@@ -201,7 +201,7 @@ const SearchBar: React.FC<props> = ({
                     className="text-sm  group flex items-center justify-center p-2.5 text-center font-medium relative focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2"
                     // {...register("category_id", { valueAsNumber: true })}
                   >
-                    <option value="">Select Category</option>
+                    <option value="-1">Select Category</option>
 
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
@@ -236,7 +236,6 @@ const SearchBar: React.FC<props> = ({
                   id="search-dropdown"
                   className="block p-2.5 w-full z-20 text-sm rounded-lg border-s-2 border focus:ring-cyan-500 bg-gray-700 border-s-gray-700 border-cyan-600 placeholder-gray-400 text-white focus:border-cyan-500"
                   placeholder="Search Mockups, Logos, Design Templates..."
-                  required
                 />
                 <button
                   type="submit"
