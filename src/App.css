@@ -85,3 +85,7 @@
         display: block;
     }
 }
+
+.leaflet-container {
+    height: 300px;
+}

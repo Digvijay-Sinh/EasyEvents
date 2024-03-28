@@ -272,7 +272,7 @@ const EditEventForm: React.FC<props> = ({
       console.log(userLocalDate.getMonth());
 
       const newDate = `${userLocalDate.getFullYear()}-${
-        userLocalDate.getMonth() > 9
+        userLocalDate.getMonth() > 8
           ? userLocalDate.getMonth() + 1
           : "0" + (userLocalDate.getMonth() + 1)
       }-${

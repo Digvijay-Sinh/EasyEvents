@@ -1,30 +1,32 @@
-import axios from "axios";
-import { Button } from "flowbite-react";
+import React, { useState } from "react";
+// import SearchBox from "./SearchBox";
+import Maps from "./Maps";
+import { LatLngExpression } from "leaflet";
+import SearchBox from "./SearchBar";
 
-const DemoApi = () => {
-  const clickHandler = async () => {
-    const options = {
-      method: "POST",
-      url: "https://londontheatredirectstefan-skliarovv1.p.rapidapi.com/getEvents",
-      headers: {
-        "X-RapidAPI-Key": "SIGN-UP-FOR-KEY",
-        "X-RapidAPI-Host":
-          "LondonTheatreDirectstefan-skliarovV1.p.rapidapi.com",
-      },
-    };
+function DemoApi() {
+  const [selectPosition, setSelectPosition] = useState<LatLngExpression | null>(
+    null
+  );
+  const position: LatLngExpression = [51.505, -0.09];
 
-    try {
-      const response = await axios.request(options);
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
   return (
-    <div>
-      <Button onClick={clickHandler} />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        width: "100vw",
+        height: "100vh",
+      }}
+    >
+      <div style={{ width: "50vw", height: "100%" }}>
+        <Maps selectPosition={selectPosition || position} />
+      </div>
+      <div style={{ width: "50vw" }}>
+        <SearchBox setSelectPosition={setSelectPosition} />
+      </div>
     </div>
   );
-};
+}
 
 export default DemoApi;
