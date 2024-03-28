@@ -63,6 +63,7 @@ import { Route, Routes } from "react-router-dom";
 import Loader from "../components/Loader";
 import EditEventForm from "../pages/editeventpage/EditEventForm";
 import EditEventPage from "../pages/editeventpage";
+import ForgotPasswordPage from "../pages/auth/forgotpassword";
 
 // Lazy-loaded page components
 const HomePage = lazy(() => import("../pages/homepage"));
@@ -95,6 +96,7 @@ const RouteContainer = () => {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
         <Route path="/hookform" element={<FormHookTest />} />
         <Route path="/eventbooking" element={<EventBookingPage />} />
         <Route path="/eventgroup" element={<EventGroupPage />} />

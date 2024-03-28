@@ -201,6 +201,15 @@ const LoginForm = () => {
                     Signup here
                   </Link>
                 </p>
+                <p className="text-sm font-light text-gray-400">
+                  Forgot your password?{" "}
+                  <Link
+                    to="/forgotpassword"
+                    className="font-medium   hover:underline text-blue-500"
+                  >
+                    Forgot Password
+                  </Link>
+                </p>
               </form>
             </div>
           </div>

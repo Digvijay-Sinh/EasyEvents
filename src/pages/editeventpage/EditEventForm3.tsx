@@ -69,10 +69,13 @@ const EditEventForm3: React.FC<props> = ({
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files ? e.target.files[0] : null;
+
     setSelectedImage(file);
     setImageError(null);
 
     if (file) {
+      console.log(file);
+
       // Validate image type
       if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
         setImageError("Only JPEG and PNG images are supported.");
@@ -89,6 +92,10 @@ const EditEventForm3: React.FC<props> = ({
 
   const onSubmit = async () => {
     try {
+      if (imageError) {
+        toast.error("Please fix the image error before uploading");
+        return;
+      }
       if (selectedImage) {
         const formData = new FormData();
         formData.append("image", selectedImage);
@@ -205,7 +212,7 @@ const EditEventForm3: React.FC<props> = ({
           </div>
         </div>
       </div>
-      <div>
+      <div className="w-full flex justify-center">
         <Button
           onClick={() => {
             toast.success("Event added successfully");

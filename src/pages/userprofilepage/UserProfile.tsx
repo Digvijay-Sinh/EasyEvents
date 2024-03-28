@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { RiAccountCircleFill } from "react-icons/ri";
-import { MdDelete, MdEmail } from "react-icons/md";
+import { MdDelete, MdEmail, MdFlipCameraAndroid } from "react-icons/md";
 import { FaEdit, FaPhoneAlt } from "react-icons/fa";
 import { Button, Card } from "flowbite-react";
 import { MdDateRange } from "react-icons/md";
@@ -15,6 +15,9 @@ import toast from "react-hot-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { axiosPrivate } from "../../api/axios";
 import { Link } from "react-router-dom";
+import { IoCamera } from "react-icons/io5";
+const MAX_IMAGE_SIZE_MB = 1; // Maximum image size allowed in MB
+const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png"]; // Supported image types
 
 interface SelectedUserData {
   id: number;
@@ -22,6 +25,7 @@ interface SelectedUserData {
   name: string | null;
   isAuthenticated: boolean;
   googleId: string | null;
+  profileImage: string | null;
 }
 
 interface Venue {
@@ -112,7 +116,75 @@ const UserProfile: React.FC = () => {
     userParticipatedEvents: [],
     organizerEvents: [],
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imageError, setImageError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files ? e.target.files[0] : null;
+
+    setSelectedImage(file);
+    setImageError(null);
+
+    if (file) {
+      console.log(file);
+
+      // Validate image type
+      if (!SUPPORTED_IMAGE_TYPES.includes(file.type)) {
+        setImageError("Only JPEG and PNG images are supported.");
+        return;
+      }
+
+      // Validate image size
+    }
+  };
+
+  useEffect(() => {
+    const onFileUpload = async () => {
+      try {
+        if (imageError) {
+          toast.error("Please fix the image error before uploading");
+          return;
+        }
+        if (selectedImage) {
+          const formData = new FormData();
+          formData.append("image", selectedImage);
+
+          const response = await axios.post(
+            "http://localhost:5000/api/v1/imageUpload/upload",
+            formData
+          );
+          toast.success("Image uploaded successfully");
+          // Handle response from the server if needed
+          console.log("Upload successful:", response.data);
+
+          const uploadedFileName = response.data.data;
+          const formSubmitResponse = await axiosPrivate.post(
+            "http://localhost:5000/api/v1/auth/updateProfileImage",
+            { filename: uploadedFileName }
+          );
+          toast.success("Profile image updated successfully");
+          fetchDetailedEventData();
+          if (formSubmitResponse.status === 200) {
+            console.log("===========uploaded successfully===============");
+            console.log(formSubmitResponse.data);
+            console.log("====================================");
+
+            // setShowForm4(true);
+          }
+        } else {
+          // Handle case where no image is selected
+          console.error("No image selected");
+        }
+      } catch (error) {
+        // Handle any errors that occur during the request
+        console.error("Error uploading image:", error);
+      }
+      // Handle form submission
+    };
+    onFileUpload();
+  }, [selectedImage]);
+
   const convertedEventDate = (backendDate: string) => {
     const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -184,6 +256,20 @@ const UserProfile: React.FC = () => {
     console.log("====================================");
   }, [eventsDetails]);
 
+  const handleDelete = (id: number) => {
+    axiosPrivate
+      .delete(`/api/v1/events/${id}`)
+      .then((res) => {
+        console.log(res);
+        toast.success("Event Deleted Successfully");
+        fetchDetailedEventData();
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Error Deleting Event");
+      });
+  };
+
   return (
     <>
       <div
@@ -202,12 +288,35 @@ const UserProfile: React.FC = () => {
         <div className="flex sm:w-5/6 w-full mx-auto sm:border border-gray-700  flex-col sm:flex-row rounded-xl ">
           {/* Profile Side */}
           <div className="sm:w-1/3 sm:p-4 w-full p-1">
-            <div className="posterImage ">
+            <div className="posterImage flex flex-col">
               <img
                 className="md:rounded-t-lg rounded-full w-1/2 mx-auto  md:w-full object-cover object-center aspect-ratio-rounded "
-                src={`http://localhost:5000/uploads/image-1710848304991Aditya_Gadhvi.jpg`}
+                src={`http://localhost:5000/uploads/${eventsDetails.userData[0]?.profileImage}`}
                 alt=""
               />{" "}
+              <div className="flex flex-col justify-center items-center">
+                <p className="text-white text-sm text-center">
+                  Upload/Change Your Profile Image
+                </p>
+                <Button className="w-auto">
+                  <label
+                    htmlFor="cover"
+                    className="flex cursor-pointer items-center justify-center gap-3 rounded bg-primary-400  text-sm font-medium text-white hover:bg-opacity-90 xs:px-4"
+                  >
+                    <input
+                      onChange={handleFileChange}
+                      type="file"
+                      name="cover"
+                      id="cover"
+                      className="sr-only"
+                    />
+                    <span>
+                      <IoCamera size={20} />
+                    </span>
+                    <span className="tracking-wide">Update Image</span>
+                  </label>
+                </Button>
+              </div>
             </div>
           </div>
           {/* Bookings Table Side */}
@@ -415,7 +524,12 @@ const UserProfile: React.FC = () => {
                                   <FaEdit className="text-xl mr-2" /> Update
                                   Event
                                 </Button>
-                                <Button className="bg-red-700">
+                                <Button
+                                  onClick={() => {
+                                    handleDelete(event.id);
+                                  }}
+                                  className="bg-red-700"
+                                >
                                   <MdDelete className="text-xl mr-2" />
                                   Delete Event
                                 </Button>

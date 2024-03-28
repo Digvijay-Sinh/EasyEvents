@@ -101,21 +101,28 @@ const EditEventForm22: React.FC<props> = ({
   //     }
   //   }
   // };
-  const { register, control, handleSubmit, formState, getValues, reset } =
-    useForm<FormData>({
-      defaultValues: {
-        speakers: [
-          {
-            name: "",
-            bio: "",
-            email: "",
-            organization: "",
-            image: null,
-          },
-        ],
-      },
-      resolver: yupResolver(schema) as Resolver<FormData>,
-    });
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState,
+    getValues,
+    setValue,
+    reset,
+  } = useForm<FormData>({
+    defaultValues: {
+      speakers: [
+        {
+          name: "",
+          bio: "",
+          email: "",
+          organization: "",
+          image: null,
+        },
+      ],
+    },
+    resolver: yupResolver(schema) as Resolver<FormData>,
+  });
 
   useEffect(() => {
     // Prepare speakers data for reset
@@ -388,13 +395,33 @@ const EditEventForm22: React.FC<props> = ({
                                       Choose new Image if you want to update
                                     </h2>
                                   </div>
-                                  {/* {<div className="posterImage w-3/4 mr-4">
-                                  <img
-                                    className="rounded-full w-full object-cover object-center aspect-ratio-rounded"
-                                    src={`http://localhost:5000/uploads/${event.speakers[index].image}`}
-                                    alt=""
-                                  />{" "}
-                                </div>} */}
+                                  {event.speakers[index].image && (
+                                    <div className="posterImage w-3/4 mr-4">
+                                      <img
+                                        className="rounded-full w-full object-cover object-center aspect-ratio-rounded"
+                                        src={`http://localhost:5000/uploads/${event.speakers[index].image}`}
+                                        alt=""
+                                      />{" "}
+                                    </div>
+                                  )}
+                                  <div>
+                                    <h2 className="text-white">Preview</h2>
+                                  </div>
+                                  {field.image && (
+                                    <div className="posterImage w-3/4 mr-4">
+                                      <img
+                                        className="rounded-full w-full object-cover object-center aspect-ratio-rounded"
+                                        src={
+                                          field.image
+                                            ? URL.createObjectURL(
+                                                field.image[0]
+                                              )
+                                            : "https://icon-library.com/images/no-image-icon/no-image-icon-0.jpg"
+                                        }
+                                        alt=""
+                                      />{" "}
+                                    </div>
+                                  )}
                                 </div>
                                 <div className="flex flex-col  items-center justify-center  sm:w-auto border-2 border-dashed border-gray-600 rounded-lg">
                                   <input
@@ -403,6 +430,12 @@ const EditEventForm22: React.FC<props> = ({
                                     type="file"
                                     accept="image/*"
                                     {...register(`speakers.${index}.image`)}
+                                    onChange={(e) =>
+                                      setValue(
+                                        `speakers.${index}.image`,
+                                        e.target.files
+                                      )
+                                    }
 
                                     // onChange={handleFileChange}
                                   />
