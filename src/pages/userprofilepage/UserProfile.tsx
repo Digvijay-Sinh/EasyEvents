@@ -76,6 +76,7 @@ interface Booking {
   paymentMethod: string;
   totalAmount: number;
   bookingReference: string;
+  qrCodeImageUrl: string;
   event: Event;
 }
 
@@ -266,7 +267,7 @@ const UserProfile: React.FC = () => {
       })
       .catch((err) => {
         console.log(err);
-        toast.error("Error Deleting Event");
+        toast.error(err.response.data.message);
       });
   };
 
@@ -399,7 +400,7 @@ const UserProfile: React.FC = () => {
                           </div>
                           {/* Bookings Table Side */}
                           <div className="sm:w-2/3 sm:p-4 w-full p-1 ">
-                            <div className="datetime flex items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+                            <div className="datetime flex flex-col sm:flex-row items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
                               <div className="flex flex-col gap-3">
                                 {" "}
                                 <div className="username w-full flex gap-2 justify-between items-center">
@@ -443,6 +444,12 @@ const UserProfile: React.FC = () => {
                                 {/* <span className="text-sm   md:text-base text-white m-0">
                 {event?.end_date}
               </span> */}
+                              </div>
+                              <div className="w-[26%] h-full flex justify-end items-end">
+                                <img
+                                  src={`http://localhost:5000/uploads/${booking.booking.qrCodeImageUrl}`}
+                                  alt="qrcode"
+                                />
                               </div>
                             </div>
                           </div>

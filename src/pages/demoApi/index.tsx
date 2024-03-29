@@ -3,11 +3,14 @@ import React, { useState } from "react";
 import Maps from "./Maps";
 import { LatLngExpression } from "leaflet";
 import SearchBox from "./SearchBar";
+import { PlaceData } from "./SearchBar";
 
 function DemoApi() {
   const [selectPosition, setSelectPosition] = useState<LatLngExpression | null>(
     null
   );
+
+  const [searchAddress, setSearchAddress] = useState<PlaceData>();
   const position: LatLngExpression = [51.505, -0.09];
 
   return (
@@ -23,7 +26,10 @@ function DemoApi() {
         <Maps selectPosition={selectPosition || position} />
       </div>
       <div style={{ width: "50vw" }}>
-        <SearchBox setSelectPosition={setSelectPosition} />
+        <SearchBox
+          setSelectPosition={setSelectPosition}
+          setSearchAddress={setSearchAddress}
+        />
       </div>
     </div>
   );

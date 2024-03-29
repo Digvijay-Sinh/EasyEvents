@@ -8,6 +8,10 @@ import { MdAddBox } from "react-icons/md";
 import * as yup from "yup";
 import { DevTool } from "@hookform/devtools";
 import { axiosPrivate } from "../../api/axios";
+import { LatLngExpression } from "leaflet";
+import Maps from "../demoApi/Maps";
+import SearchBox, { PlaceData } from "../demoApi/SearchBar";
+import { set } from "lodash";
 
 enum EventMode {
   OFFLINE = "OFFLINE",
@@ -137,7 +141,12 @@ const AddEventForm: React.FC<props> = ({
   const [venues, setVenues] = useState<Venue[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [types, setTypes] = useState<Type[]>([]);
+  const [selectPosition, setSelectPosition] = useState<LatLngExpression | null>(
+    null
+  );
+  const [searchAddress, setSearchAddress] = useState<PlaceData>();
 
+  const position: LatLngExpression = [51.505, -0.09];
   // Function to fetch venues from the backend
   const fetchVenues = async () => {
     try {
@@ -279,6 +288,8 @@ const AddEventForm: React.FC<props> = ({
     register: registerVenue,
     handleSubmit: handleSubmitVenue,
     formState: formStateVenue,
+    reset: resetVenue,
+    setValue: setValueVenue,
   } = useForm<FormDataVenue>({
     defaultValues: {
       name: "",
@@ -378,6 +389,38 @@ const AddEventForm: React.FC<props> = ({
   //   console.log(data);
   // };
 
+  useEffect(() => {
+    console.log("====================================");
+    console.log(searchAddress);
+    if (searchAddress?.address.city) {
+      setValueVenue("city", searchAddress?.address?.city);
+    } else if (searchAddress?.address.town) {
+      setValueVenue("city", searchAddress?.address?.town);
+    } else if (searchAddress?.address.state_district) {
+      setValueVenue("city", searchAddress?.address?.state_district);
+    } else if (searchAddress?.address.village) {
+      setValueVenue("city", searchAddress?.address?.village);
+    } else {
+      setValueVenue("city", "");
+    }
+
+    resetVenue({
+      address: searchAddress?.display_name || "",
+
+      state: searchAddress?.address.state || "",
+      country: searchAddress?.address.country || "",
+    });
+    if (searchAddress?.display_name) {
+      const nameOfAddress = searchAddress?.display_name;
+      const firstCommaIndex = nameOfAddress.indexOf(",");
+      const wordBeforeFirstComma = nameOfAddress
+        .substring(0, firstCommaIndex)
+        .trim();
+      setValueVenue("name", wordBeforeFirstComma);
+      console.log(wordBeforeFirstComma); // Output: Google
+    }
+  }, [searchAddress]);
+
   return (
     <section className="bg-no-repeat bg-center bg-cover ">
       {/* <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 "> */}
@@ -388,6 +431,28 @@ const AddEventForm: React.FC<props> = ({
           </h1>
           {showAddVenueForm && (
             <div className="border-2 border-solid border-gray-600 p-2 rounded-lg">
+              <div
+                className="gap-3"
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  width: "100%",
+                  height: "40vh",
+                }}
+              >
+                <div style={{ width: "70%", height: "100%" }}>
+                  <Maps selectPosition={selectPosition || position} />
+                </div>
+                <div
+                  className="flex flex-col items-start mt-4"
+                  style={{ width: "30%" }}
+                >
+                  <SearchBox
+                    setSelectPosition={setSelectPosition}
+                    setSearchAddress={setSearchAddress}
+                  />
+                </div>
+              </div>
               <form
                 className="space-y-4 md:space-y-6"
                 noValidate
@@ -497,6 +562,7 @@ const AddEventForm: React.FC<props> = ({
                   </Button>
                 </div>
               </form>
+
               {/* <div>
                         <label className="block mb-2 text-sm font-medium text-white">
                           Venue ID
@@ -545,11 +611,9 @@ const AddEventForm: React.FC<props> = ({
 
                       {venues.map((venue) => (
                         <option key={venue.id} value={venue.id}>
-                          <div>{venue.name},</div>
-                          <div>{venue.address},</div>
                           <div>
-                            {" "}
-                            {venue.city},{venue.state},{venue.country}
+                            {venue.name},{venue.city},{venue.state},
+                            {venue.country}
                           </div>
                         </option>
                       ))}

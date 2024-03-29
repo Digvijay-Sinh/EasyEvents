@@ -35,7 +35,7 @@ export default function Maps({ selectPosition }: MapsProps) {
   return (
     <MapContainer
       center={position}
-      zoom={13}
+      zoom={16}
       style={{ width: "100%", height: "100%" }}
     >
       <TileLayer

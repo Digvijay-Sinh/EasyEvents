@@ -407,7 +407,7 @@ const EditEventForm22: React.FC<props> = ({
                                   <div>
                                     <h2 className="text-white">Preview</h2>
                                   </div>
-                                  {field.image && (
+                                  {/* {field.image && (
                                     <div className="posterImage w-3/4 mr-4">
                                       <img
                                         className="rounded-full w-full object-cover object-center aspect-ratio-rounded"
@@ -421,7 +421,7 @@ const EditEventForm22: React.FC<props> = ({
                                         alt=""
                                       />{" "}
                                     </div>
-                                  )}
+                                  )} */}
                                 </div>
                                 <div className="flex flex-col  items-center justify-center  sm:w-auto border-2 border-dashed border-gray-600 rounded-lg">
                                   <input

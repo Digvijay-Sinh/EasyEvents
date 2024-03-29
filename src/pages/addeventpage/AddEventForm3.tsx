@@ -192,7 +192,7 @@ const AddEventForm3: React.FC<props> = ({
           </div>
         </div>
       </div>
-      <div>
+      <div className="flex w-full justify-center">
         <Button
           onClick={() => {
             toast.success("Event added successfully");

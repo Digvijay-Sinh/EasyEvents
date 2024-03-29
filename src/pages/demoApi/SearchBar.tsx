@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { LatLngExpression } from "leaflet";
 
-const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
+const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?limit=5";
 
 export interface PlaceData {
   address: {
@@ -15,6 +15,8 @@ export interface PlaceData {
     postcode: string;
     state: string;
     state_district: string;
+    town: string;
+    village: string;
   };
   addresstype: string;
   boundingbox: [string, string, string, string];
@@ -36,9 +38,13 @@ interface SearchBarProps {
   setSelectPosition: React.Dispatch<
     React.SetStateAction<LatLngExpression | null>
   >;
+  setSearchAddress: React.Dispatch<React.SetStateAction<PlaceData | undefined>>;
 }
 
-export default function SearchBox({ setSelectPosition }: SearchBarProps) {
+export default function SearchBox({
+  setSelectPosition,
+  setSearchAddress,
+}: SearchBarProps) {
   //   const { setSelectPosition } = props;
   // const setSelectPosition: LatLngExpression = [51.505, -0.09];
 
@@ -67,11 +73,16 @@ export default function SearchBox({ setSelectPosition }: SearchBarProps) {
 
   return (
     <div
-      style={{ display: "flex", flexDirection: "column", marginTop: "100px" }}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+      }}
     >
       <div style={{ display: "flex" }}>
         <div style={{ flex: 1 }}>
           <input
+            className="p-2 rounded-md"
             style={{ width: "100%" }}
             value={searchText}
             onChange={(event) => {
@@ -91,17 +102,19 @@ export default function SearchBox({ setSelectPosition }: SearchBarProps) {
             listPlace.map((item) => (
               <li key={item?.place_id}>
                 <div
-                  onClick={() =>
+                  className="flex text-xs p-2 cursor-pointer text-white hover:bg-gray-700"
+                  onClick={() => {
                     setSelectPosition([
                       parseFloat(item.lat),
                       parseFloat(item.lon),
-                    ] as LatLngExpression)
-                  }
+                    ] as LatLngExpression);
+                    setSearchAddress(item);
+                  }}
                 >
                   <img
                     src="./placeholder.png"
                     alt="Placeholder"
-                    style={{ width: 38, height: 38 }}
+                    style={{ width: "20px", height: "20px" }}
                   />
                   {item?.display_name}
                 </div>

@@ -173,6 +173,9 @@ const SearchBar: React.FC<props> = ({
     fetchCategories();
   }, []);
   useEffect(() => {
+    if (!searched) {
+      return;
+    }
     const apiUrl = `http://localhost:5000/api/v1/events/search?search=${searchTerm}&startDate=${value.startDate}&endDate=${value.endDate}&category=${category}`;
     console.log("=========apiURL====================");
     console.log(apiUrl);
@@ -196,12 +199,14 @@ const SearchBar: React.FC<props> = ({
                     // value={category}
                     onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
                       setCategory(e.target.value);
-                      setSearched(true);
+                      if (e?.target.value !== "") {
+                        setSearched(true);
+                      }
                     }}
                     className="text-sm  group flex items-center justify-center p-2.5 text-center font-medium relative focus:z-10 focus:outline-none text-white bg-cyan-700 border border-transparent enabled:hover:bg-cyan-800 focus:ring-cyan-300 dark:bg-cyan-600 dark:enabled:hover:bg-cyan-700 dark:focus:ring-cyan-800 rounded-lg focus:ring-2"
                     // {...register("category_id", { valueAsNumber: true })}
                   >
-                    <option value="-1">Select Category</option>
+                    <option value="">Select Category</option>
 
                     {categories.map((category) => (
                       <option key={category.id} value={category.id}>
