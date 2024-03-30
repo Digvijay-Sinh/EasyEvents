@@ -68,11 +68,16 @@ const EmailForm: React.FC<Props> = ({
         console.log(res);
       } else {
         if (res && res.status === 400) {
+          toast.dismiss(loading);
+          toast.error("Invalid email");
           toast("Internal server error");
           console.log(res);
         } else {
+          toast.dismiss(loading);
+
           console.error("Some error occured");
         }
+        toast.dismiss(loading);
         console.error("Some error occured");
       }
     } catch (error) {
@@ -81,13 +86,16 @@ const EmailForm: React.FC<Props> = ({
         if (error.response && error.response.data) {
           // Handle specific error messages from backend
           const errorMessage = error.response.data.message;
+          toast.dismiss(loading);
           toast.error(errorMessage);
         } else {
           // Other errors
+          toast.dismiss(loading);
           toast.error("An error occurred");
         }
       } else {
         // Handle non-Axios errors
+        toast.dismiss(loading);
         console.error("An error occurred:", error);
       }
     }

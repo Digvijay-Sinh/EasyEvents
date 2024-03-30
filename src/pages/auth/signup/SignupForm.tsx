@@ -18,7 +18,7 @@ const SignupForm = () => {
         style={{ backgroundImage: `url(${formbg})` }}
         className="bg-no-repeat bg-center bg-cover "
       >
-        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0 ">
+        <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0 ">
           <div className="w-full   shadow   md:mt-0 sm:max-w-md xl:p-0 bg-transparent">
             {showOtpScreen === false && showPasswordScreen === false && (
               <div className="p-6 space-y-4 rounded-3xl md:space-y-6 sm:p-8 backdrop-blur-md bg-black/50 ">

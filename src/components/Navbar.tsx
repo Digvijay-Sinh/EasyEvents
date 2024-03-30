@@ -44,7 +44,7 @@ const Nav = () => {
           }}
           className="px-4 py-2 text-white flex   justify-between bg-black"
         >
-          <div className="flex items-center justify-center">
+          <div className="flex mt-2 sm:mt-0 items-start sm:items-center justify-center">
             <Link to="/">
               <h1 className="font-custom font-extrabold text-2xl align-middle">
                 easyevents

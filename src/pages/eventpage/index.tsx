@@ -195,7 +195,7 @@ const EventPage = () => {
       </div>
       <div className="flex sm:w-5/6 w-full mx-auto sm:border border-gray-700  flex-col sm:flex-row rounded-xl ">
         <div className="left sm:w-4/6 sm:p-4 w-full p-1">
-          <div className="posterImage ">
+          <div className="posterImage w-full">
             <img
               className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
               src={`http://localhost:5000/uploads/${event?.images[0]?.poster_image}`}

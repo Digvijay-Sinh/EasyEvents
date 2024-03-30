@@ -390,7 +390,7 @@ const UserProfile: React.FC = () => {
                         <div className="flex sm:w-full w-full  sm:border border-gray-700  flex-col sm:flex-row rounded-xl mt-3">
                           {/* Profile Side */}
                           <div className="sm:w-1/3 flex items-center sm:p-4 w-full p-1">
-                            <div className="posterImage ">
+                            <div className="posterImage w-full">
                               <img
                                 className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
                                 src={`http://localhost:5000/uploads/${booking.booking.event.images[0]?.poster_image}`}
@@ -470,7 +470,7 @@ const UserProfile: React.FC = () => {
                       <div className="flex sm:w-full w-full  sm:border border-gray-700  flex-col sm:flex-row rounded-xl mt-3">
                         {/* Profile Side */}
                         <div className="sm:w-1/3 flex items-center sm:p-4 w-full p-1">
-                          <div className="posterImage ">
+                          <div className="posterImage w-full">
                             <img
                               className="rounded-t-lg w-full object-cover object-center aspect-ratio-16-9 "
                               src={`http://localhost:5000/uploads/${event.images[0]?.poster_image}`}

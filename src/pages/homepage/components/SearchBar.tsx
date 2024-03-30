@@ -5,6 +5,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 import { Event } from "../../homepage/index";
+import { set } from "react-hook-form";
 
 interface DateRangeState {
   startDate: string;
@@ -231,16 +232,21 @@ const SearchBar: React.FC<props> = ({
           <Dropdown.Item>Sign out</Dropdown.Item>
         </Dropdown> */}
               </div>
-              <div className="relative flex-1 w-[30vh] sm:w-auto mt-3 sm:mt-0 ">
+              <div className="relative sm:flex-1 w-full sm:w-auto mt-3 sm:mt-0 ">
                 <input
                   type="search"
                   value={searchTerm}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    if (e.target.value === "") {
+                      if (searched) {
+                        setSearched(false);
+                      }
+                    }
                     setSearchTerm(e.target.value);
                   }}
                   id="search-dropdown"
                   className="block p-2.5 w-full z-20 text-sm rounded-lg border-s-2 border focus:ring-cyan-500 bg-gray-700 border-s-gray-700 border-cyan-600 placeholder-gray-400 text-white focus:border-cyan-500"
-                  placeholder="Search Mockups, Logos, Design Templates..."
+                  placeholder="Search by name, category, type..."
                 />
                 <button
                   type="submit"
