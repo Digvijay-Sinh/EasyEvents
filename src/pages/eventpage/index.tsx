@@ -69,6 +69,7 @@ export interface Event {
   end_date_toRegister: string;
   mode: string;
   capacity: number;
+  tickets_remaining: number;
   price: number;
   organizer_id: number;
   venue_id: number;
@@ -243,7 +244,7 @@ const EventPage = () => {
             <div className="datetime mt-3 sm:w-full w-full ticket sm:py-3  align-middle  ">
               <div className="flex justify-between">
                 <p className="text-sm p-1   md:text-base text-white m-0">
-                  Tickets remaining: {event?.capacity}
+                  Tickets remaining: {event?.tickets_remaining}
                 </p>
                 <p className="text-sm p-1 px-3 rounded-lg font-bold  bg-yellow-300  md:text-base text-black m-0">
                   ₹ {event?.price}
@@ -251,10 +252,37 @@ const EventPage = () => {
               </div>
               <Button
                 onClick={() => {
+                  if (auth && auth?.accessToken) {
+                    const currentDate = new Date();
+                    const startDateToRegister = new Date(
+                      event?.start_date_toRegister
+                    );
+                    const endDateToRegister = new Date(
+                      event?.end_date_toRegister
+                    );
+
+                    console.log("====================================");
+                    console.log("Current Date:", currentDate);
+                    console.log("Start Date:", startDateToRegister);
+                    console.log("End Date:", endDateToRegister);
+                    console.log("====================================");
+
+                    if (
+                      currentDate >= startDateToRegister &&
+                      currentDate <= endDateToRegister
+                    ) {
+                      // User is within the registration period
+                      // Open the modal
+                      setModalOpen(true);
+                    } else {
+                      toast.error("Registration period has ended");
+                      // User is outside the registration period
+                      // Display a message or take appropriate action
+                    }
+                  }
                   //check if user exists in auth in useAuth
 
                   //if yes then open modal
-                  setModalOpen(true);
                 }}
                 className="p-0 mx-auto mt-2 focus:z-0"
               >

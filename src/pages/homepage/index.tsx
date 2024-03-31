@@ -11,6 +11,7 @@ import SearchBar from "./components/SearchBar";
 import toast from "react-hot-toast";
 import CategoryCard from "./components/CategoryCard";
 import LongEventCard from "./components/LongEventCard";
+import Loader from "../../components/Loader";
 const LazyCustomModal = lazy(() => import("./components/UserInterestModal"));
 
 export interface Category {
@@ -52,6 +53,8 @@ export interface Image {
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
   const [searched, setSearched] = useState(false);
+
+  const [isLoadingSearch, setIsLoadingSearch] = useState(false);
   const [categoryWise, setCategoryWise] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -309,6 +312,8 @@ const HomePage = () => {
       <div className="cardContainer   ">
         <div>
           <SearchBar
+            isLoadingSearch={isLoadingSearch}
+            setIsLoadingSearch={setIsLoadingSearch}
             searchedEvents={searchedEvents}
             setSearchedEvents={setSearchedEvents}
             searched={searched}
@@ -317,28 +322,35 @@ const HomePage = () => {
         </div>
 
         {searched && (
-          <div>
+          <div className="min-h-44">
             <div className="mt-10">
               <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
                 Search Results <br />
               </h1>
             </div>
-
-            <div className="flex flex-wrap ">
-              {searchedEvents.length > 0 ? (
-                searchedEvents.map((event) => {
-                  return <LongEventCard customKey={event.id} event={event} />;
-                })
-              ) : (
-                <div className="flex justify-center w-full">
-                  <h1 className="text-white text-2xl text-center">
-                    Oops! No events found
-                  </h1>
-                </div>
-              )}
-            </div>
+            {searched && isLoadingSearch && (
+              <div className="flex justify-center w-full mt-10">
+                <div className="loader animate-spin rounded-full border-t-4 border-b-4 border-white h-12 w-12"></div>
+              </div>
+            )}
+            {searched && !isLoadingSearch && (
+              <div className="flex flex-wrap ">
+                {searchedEvents.length > 0 ? (
+                  searchedEvents.map((event) => {
+                    return <LongEventCard customKey={event.id} event={event} />;
+                  })
+                ) : (
+                  <div className="flex justify-center w-full">
+                    <h1 className="text-white text-2xl text-center">
+                      Oops! No events found
+                    </h1>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
+
         {/* Popular categories */}
         <div>
           <div className="mt-10">
@@ -543,7 +555,7 @@ const HomePage = () => {
             <div>
               <div className="mt-10">
                 <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
-                  Top Rated Events <br />
+                  Most popular events <br />
                   {/* <span className="text sm:text-base text-[0.75rem] text-gray-400">
                     Based on your location
                   </span> */}

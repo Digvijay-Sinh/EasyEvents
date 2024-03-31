@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { RiAccountCircleFill } from "react-icons/ri";
 import { MdDelete, MdEmail, MdFlipCameraAndroid } from "react-icons/md";
-import { FaEdit, FaPhoneAlt } from "react-icons/fa";
+import { FaEdit, FaEye, FaPhoneAlt } from "react-icons/fa";
 import { Button, Card } from "flowbite-react";
 import { MdDateRange } from "react-icons/md";
 import { TbStatusChange } from "react-icons/tb";
@@ -487,6 +487,18 @@ const UserProfile: React.FC = () => {
                                 <span className="text-sm   md:text-base text-white m-0">
                                   {event.title}
                                 </span>
+                                <span className="text-sm   md:text-base text-white m-0">
+                                  <Button
+                                    className="p-0"
+                                    onClick={() => {
+                                      navigate(`/eventhostedpage/${event.id}`);
+                                    }}
+                                  >
+                                    <FaEye className="text-xl mr-2" /> View
+                                    Event
+                                  </Button>
+                                </span>
+
                                 {/* <span className="text-sm max-w-fit p-3 rounded-lg bg-gradient-to-r from-fuchsia-600 to-pink-600   md:text-base text-white m-0">
                                 {booking.booking.numberOfTickets} x ₹{" "}
                                 {booking.booking.event.price} = ₹{" "}

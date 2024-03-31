@@ -94,6 +94,7 @@ export interface Event {
   end_date_toRegister: string;
   mode: string;
   capacity: number;
+  tickets_remaining: number;
   price: number;
   organizer_id: number;
   venue_id: number;
@@ -304,7 +305,7 @@ const EventHostedPage = () => {
                   Tickets remaining:
                 </p>
                 <p className="text-sm p-1 px-3 rounded-lg font-bold  bg-yellow-300  md:text-base text-black m-0">
-                  {event?.capacity}
+                  {event?.tickets_remaining}
                 </p>
               </div>
               <div className="flex justify-between mt-1">
@@ -312,7 +313,7 @@ const EventHostedPage = () => {
                   Tickets booked:
                 </p>
                 <p className="text-sm p-1 px-3 rounded-lg font-bold  bg-yellow-300  md:text-base text-black m-0">
-                  {event?.capacity}
+                  {event?.capacity - event?.tickets_remaining}
                 </p>
               </div>
 

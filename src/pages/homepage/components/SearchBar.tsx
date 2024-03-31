@@ -17,6 +17,8 @@ interface Category {
 }
 
 type props = {
+  isLoadingSearch: boolean;
+  setIsLoadingSearch: React.Dispatch<React.SetStateAction<boolean>>;
   searched: boolean;
   setSearched: React.Dispatch<React.SetStateAction<boolean>>;
   searchedEvents: Event[];
@@ -24,6 +26,8 @@ type props = {
 };
 
 const SearchBar: React.FC<props> = ({
+  isLoadingSearch,
+  setIsLoadingSearch,
   searched,
   setSearched,
   searchedEvents,
@@ -129,6 +133,7 @@ const SearchBar: React.FC<props> = ({
 
   const fetchSearchedAndFilteredEvents = async (apiUrl: string) => {
     try {
+      setIsLoadingSearch(true);
       // Make a GET request to fetch categories from the backend
       const response = await axios.get<Event[]>(apiUrl);
 
@@ -136,7 +141,6 @@ const SearchBar: React.FC<props> = ({
 
       // Set the fetched categories in the state
       setSearchedEvents(response.data);
-
       console.log("============categories======");
       console.log(searchedEvents);
 
@@ -167,6 +171,10 @@ const SearchBar: React.FC<props> = ({
     const apiUrl = `http://localhost:5000/api/v1/events/search?search=${searchTerm}&startDate=${value.startDate}&endDate=${value.endDate}&category=${category}`;
     console.log(apiUrl);
     fetchSearchedAndFilteredEvents(apiUrl);
+    setTimeout(() => {
+      setIsLoadingSearch(false);
+    }, 1000); // You can adjust the timeout value as per your needs
+
     // Your form submission logic here
   };
 
@@ -182,6 +190,9 @@ const SearchBar: React.FC<props> = ({
     console.log(apiUrl);
     console.log("====================================");
     fetchSearchedAndFilteredEvents(apiUrl);
+    setTimeout(() => {
+      setIsLoadingSearch(false);
+    }, 1000); // You can adjust the timeout value as per your needs
   }, [category, value]);
 
   return (

@@ -55,10 +55,10 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
 
       // Handle the response
       console.log("Response:", response.data);
-    } catch (error) {
+    } catch (error: any) {
       // Handle any errors
-      toast.error("An error occurred while adding the venue");
-      console.error("Error:", error);
+      toast.error(error.response.data.message);
+      console.error("Error:", error.response.data.message);
     }
   };
 
