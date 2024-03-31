@@ -64,6 +64,7 @@ import Loader from "../components/Loader";
 import EditEventForm from "../pages/editeventpage/EditEventForm";
 import EditEventPage from "../pages/editeventpage";
 import ForgotPasswordPage from "../pages/auth/forgotpassword";
+import EventHostedPage from "../pages/eventhostedpage";
 
 // Lazy-loaded page components
 const HomePage = lazy(() => import("../pages/homepage"));
@@ -90,8 +91,10 @@ const RouteContainer = () => {
         <Route path="/event/:eventId" element={<EventPage />} />
         <Route element={<ProtectedPage />}>
           <Route path="/addevent" element={<AddEventPage />} />
-        </Route>
-        <Route element={<ProtectedPage />}>
+          <Route
+            path="/eventhostedpage/:eventId"
+            element={<EventHostedPage />}
+          />
           <Route path="/editevent/:eventId" element={<EditEventPage />} />
         </Route>
         <Route path="/login" element={<Login />} />
