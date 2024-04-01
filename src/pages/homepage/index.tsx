@@ -12,6 +12,9 @@ import toast from "react-hot-toast";
 import CategoryCard from "./components/CategoryCard";
 import LongEventCard from "./components/LongEventCard";
 import Loader from "../../components/Loader";
+import { Pagination } from "flowbite-react";
+import { set } from "react-hook-form";
+
 const LazyCustomModal = lazy(() => import("./components/UserInterestModal"));
 
 export interface Category {
@@ -53,10 +56,15 @@ export interface Image {
 const HomePage = () => {
   const { auth, setAuth } = useAuth();
   const [searched, setSearched] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
+  const onPageChange = (page: number) => setCurrentPage(page);
   const [isLoadingSearch, setIsLoadingSearch] = useState(false);
+  const [isLoadingPaginated, setIsLoadingPaginated] = useState(false);
   const [categoryWise, setCategoryWise] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
+  const [paginatedEvents, setPaginatedEvents] = useState<Event[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [userInterests, setUserInterests] = useState<CategoryWithEvents[]>([]);
   const [searchedEvents, setSearchedEvents] = useState<Event[]>([]);
@@ -181,6 +189,34 @@ const HomePage = () => {
     getAllEvents();
     fetchCategories();
   }, []);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoadingPaginated(true);
+        const response = await axios.get(
+          `http://localhost:5000/api/v1/events/paginated?page=${currentPage}`
+        );
+        const { data, totalCount } = response.data;
+        console.log("====================================");
+        console.log(data);
+        console.log("====================================");
+        console.log(totalCount);
+        console.log("====================================");
+        console.log("====================================");
+        setPaginatedEvents(data);
+        setTotalPages(totalCount);
+      } catch (error) {
+        setIsLoadingPaginated(false);
+        console.error("Error fetching data:", error);
+        // Handle error
+      }
+    };
+
+    fetchData();
+    setTimeout(() => {
+      setIsLoadingPaginated(false);
+    }, 1000); // You can adjust the timeout value as per your needs
+  }, [currentPage]);
 
   useEffect(() => {
     console.log("====================================");
@@ -334,19 +370,23 @@ const HomePage = () => {
               </div>
             )}
             {searched && !isLoadingSearch && (
-              <div className="flex flex-wrap ">
-                {searchedEvents.length > 0 ? (
-                  searchedEvents.map((event) => {
-                    return <LongEventCard customKey={event.id} event={event} />;
-                  })
-                ) : (
-                  <div className="flex justify-center w-full">
-                    <h1 className="text-white text-2xl text-center">
-                      Oops! No events found
-                    </h1>
-                  </div>
-                )}
-              </div>
+              <>
+                <div className="flex flex-wrap ">
+                  {searchedEvents.length > 0 ? (
+                    searchedEvents.map((event) => {
+                      return (
+                        <LongEventCard customKey={event.id} event={event} />
+                      );
+                    })
+                  ) : (
+                    <div className="flex justify-center w-full">
+                      <h1 className="text-white text-2xl text-center">
+                        Oops! No events found
+                      </h1>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         )}
@@ -625,36 +665,55 @@ const HomePage = () => {
                       </div>
                     );
                   })}
-                  {/* <EventCard /> */}
-                  {/* <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard />
-            <EventCard /> */}
                 </Carousel>
               </div>
             </div>
           </>
         }
+      </div>
+      <div>
+        <div className="mt-10">
+          <h1 className="text-xl my-2 font-bold leading-tight tracking-tight  md:text-2xl text-white text-center">
+            Trending events <br />
+            {/* <span className="text sm:text-base text-[0.75rem] text-gray-400">
+                    Based on your location
+                  </span> */}
+          </h1>
+        </div>
+        {isLoadingPaginated && (
+          <div className="flex justify-center w-full min-h-48 mt-10">
+            <div className="loader animate-spin rounded-full border-t-4 border-b-4 border-white h-12 w-12"></div>
+          </div>
+        )}
+
+        {!isLoadingPaginated && (
+          <div>
+            <>
+              <div className="flex flex-wrap ">
+                {paginatedEvents.length > 0 ? (
+                  paginatedEvents.map((event) => {
+                    return <LongEventCard customKey={event.id} event={event} />;
+                  })
+                ) : (
+                  <div className="flex justify-center w-full">
+                    <h1 className="text-white text-2xl text-center">
+                      Oops! No events found
+                    </h1>
+                  </div>
+                )}
+              </div>
+              <div className="flex overflow-x-auto justify-center sm:justify-center dark">
+                <Pagination
+                  previousLabel={"<"}
+                  nextLabel=">"
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={onPageChange}
+                />
+              </div>
+            </>
+          </div>
+        )}
       </div>
       {!auth?.accessToken && (
         <div className="">

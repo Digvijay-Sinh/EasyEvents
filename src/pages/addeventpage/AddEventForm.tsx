@@ -146,7 +146,7 @@ const AddEventForm: React.FC<props> = ({
   );
   const [searchAddress, setSearchAddress] = useState<PlaceData>();
 
-  const position: LatLngExpression = [51.505, -0.09];
+  const position: LatLngExpression = [23.03282845, 72.54671281964617];
   // Function to fetch venues from the backend
   const fetchVenues = async () => {
     try {
@@ -359,10 +359,12 @@ const AddEventForm: React.FC<props> = ({
       console.log(venues);
       console.log("====================================");
       // Make a POST request to your backend API endpoint
-      const response = await axios.post(
-        "http://localhost:5000/api/v1/venue",
-        data
-      );
+      const response = await axios.post("http://localhost:5000/api/v1/venue", {
+        ...data,
+        latitude: parseFloat(searchAddress?.lat),
+        longitude: parseFloat(searchAddress?.lon),
+        postcode: searchAddress?.address.postcode,
+      });
       toast.success("Venue added successfully");
 
       console.log("response", response.data.data.id);
@@ -785,6 +787,47 @@ const AddEventForm: React.FC<props> = ({
                         </div>
                       </div>{" "}
                     </div>
+                  </div>
+                  <div className="sm:w-1/2 w-full m-0 sm:m-4">
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-white">
+                        Event Capacity
+                      </label>
+                      <input
+                        type="text"
+                        {...register("capacity", { valueAsNumber: true })}
+                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <div>
+                        {errors.capacity ? (
+                          <p className="text-red-500 text-xs italic">
+                            {errors.capacity.message}
+                          </p>
+                        ) : (
+                          <div style={{ height: "1rem" }} />
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-white">
+                        Ticket price
+                      </label>
+                      <input
+                        type="number"
+                        {...register("price", { valueAsNumber: true })}
+                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
+                      />
+                      <div>
+                        {errors.price ? (
+                          <p className="text-red-500 text-xs italic">
+                            {errors.price.message}
+                          </p>
+                        ) : (
+                          <div style={{ height: "1rem" }} />
+                        )}
+                      </div>{" "}
+                    </div>
 
                     <div>
                       <label className="block mb-2 text-sm font-medium text-white">
@@ -864,47 +907,6 @@ const AddEventForm: React.FC<props> = ({
                         {errors.type_id ? (
                           <p className="text-red-500 text-xs italic">
                             {errors.type_id.message}
-                          </p>
-                        ) : (
-                          <div style={{ height: "1rem" }} />
-                        )}
-                      </div>{" "}
-                    </div>
-                  </div>
-                  <div className="sm:w-1/2 w-full m-0 sm:m-4">
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-white">
-                        Event Capacity
-                      </label>
-                      <input
-                        type="text"
-                        {...register("capacity", { valueAsNumber: true })}
-                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <div>
-                        {errors.capacity ? (
-                          <p className="text-red-500 text-xs italic">
-                            {errors.capacity.message}
-                          </p>
-                        ) : (
-                          <div style={{ height: "1rem" }} />
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block mb-2 text-sm font-medium text-white">
-                        Ticket price
-                      </label>
-                      <input
-                        type="number"
-                        {...register("price", { valueAsNumber: true })}
-                        className="border sm:text-sm rounded-lg block w-full p-2.5 bg-gray-700 border-gray-600 placeholder-gray-400 text-white focus:ring-blue-500 focus:border-blue-500"
-                      />
-                      <div>
-                        {errors.price ? (
-                          <p className="text-red-500 text-xs italic">
-                            {errors.price.message}
                           </p>
                         ) : (
                           <div style={{ height: "1rem" }} />

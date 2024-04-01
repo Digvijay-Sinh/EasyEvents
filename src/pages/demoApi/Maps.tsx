@@ -7,11 +7,11 @@ interface MapsProps {
 }
 
 const icon = L.icon({
-  iconUrl: "./placeholder.png",
+  iconUrl: "http://localhost:5173/placeholder.png",
   iconSize: [38, 38],
 });
 
-const position: LatLngExpression = [51.505, -0.09];
+const position: LatLngExpression = [23.03282845, 72.54671281964617];
 
 function ResetCenterView({
   selectPosition,
@@ -22,6 +22,9 @@ function ResetCenterView({
 
   useEffect(() => {
     if (selectPosition) {
+      console.log("====================================");
+      console.log("selectPosition", selectPosition);
+      console.log("====================================");
       map.setView(selectPosition, map.getZoom(), {
         animate: true,
       });

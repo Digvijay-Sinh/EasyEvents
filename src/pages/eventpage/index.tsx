@@ -9,6 +9,8 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/AuthProvider";
+import Maps from "../demoApi/Maps";
+import { LatLngExpression } from "leaflet";
 const LazyCustomModal = lazy(() => import("./CustomModel"));
 
 export interface Organizer {
@@ -30,6 +32,7 @@ export interface Venue {
   city: string;
   state: string;
   country: string;
+  postcode: string;
   google_place_id: string;
 }
 
@@ -85,6 +88,12 @@ export interface Event {
 
 const EventPage = () => {
   const navigate = useNavigate();
+  const [selectPosition, setSelectPosition] = useState<LatLngExpression | null>(
+    null
+  );
+
+  const position: LatLngExpression = [23.03282845, 72.54671281964617];
+
   const [modalOpen, setModalOpen] = useState(false);
 
   const { auth } = useAuth();
@@ -170,6 +179,16 @@ const EventPage = () => {
     console.log("====================================");
     console.log(event);
     console.log("====================================");
+    console.log(event?.venue.latitude);
+    console.log(event?.venue.longitude);
+    console.log("====================================");
+    if (event?.venue.latitude && event?.venue.longitude) {
+      setSelectPosition([
+        event?.venue.latitude,
+        event?.venue.longitude,
+      ] as LatLngExpression);
+    }
+    console.log("====================================");
   }, [event]);
 
   return (
@@ -203,6 +222,17 @@ const EventPage = () => {
               alt=""
             />{" "}
           </div>
+          <div className="datetime w-full flex flex-wrap gap-2 items-center mt-2 border border-gray-700 p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+            <Button className="p-0 mx-auto bg-purple-900 rounded-full">
+              {event?.mode}
+            </Button>
+            <Button className="p-0 mx-auto  bg-purple-900 rounded-full">
+              {event?.category.name}
+            </Button>
+            <Button className="p-0 mx-auto  bg-purple-900 rounded-full">
+              {event?.type.name}
+            </Button>
+          </div>
         </div>
         <div className="right  sm:w-2/6 sm:p-4 w-full p-1">
           <div className="datetime flex items-center border border-gray-700 p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
@@ -235,9 +265,14 @@ const EventPage = () => {
                 {event?.venue.name}
               </span>
               <span className="text-sm   md:text-base text-white m-0">
-                {event?.venue.address}, {event?.venue.city},{" "}
-                {event?.venue.state}, {event?.venue.country}
+                {event?.venue.city}, {event?.venue.state},{" "}
+                {event?.venue.country} - {event?.venue.postcode}
               </span>
+            </div>
+          </div>
+          <div className="datetime mt-3 flex items-center border h-[25vh] border-gray-700 p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+            <div style={{ width: "100%", height: "100%" }}>
+              <Maps selectPosition={selectPosition || position} />
             </div>
           </div>
           <div className="flex justify-center w-full">
@@ -290,7 +325,7 @@ const EventPage = () => {
               </Button>
             </div>
           </div>
-          <div className="datetime flex flex-wrap gap-2 items-center mt-2 border border-gray-700 p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
+          {/* <div className="datetime flex flex-wrap gap-2 items-center mt-2 border border-gray-700 p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
             <Button className="p-0 mx-auto bg-purple-900 rounded-full">
               {event?.mode}
             </Button>
@@ -300,7 +335,7 @@ const EventPage = () => {
             <Button className="p-0 mx-auto  bg-purple-900 rounded-full">
               {event?.type.name}
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
       <div className="flex sm:w-5/6 w-full mx-auto sm:border border-gray-700 flex-col-reverse sm:flex-row rounded-xl mt-2">
