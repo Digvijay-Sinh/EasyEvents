@@ -562,9 +562,7 @@ const EventHostedPage = () => {
                 <th scope="col" className="px-6 py-3">
                   Name
                 </th>
-                <th scope="col" className="px-6 py-3">
-                  Mobile Number
-                </th>
+
                 <th scope="col" className="px-6 py-3">
                   No. Of Tickets
                 </th>
@@ -609,12 +607,6 @@ const EventHostedPage = () => {
                           </div>
                         </div>
                       </th>
-                      <td className="px-6 py-4">
-                        {" "}
-                        {bookingData
-                          ? bookingData[i].user.mobileNumber
-                          : "No mobile number"}
-                      </td>
 
                       <td className="px-6 py-4">
                         <div className="flex items-center">

@@ -1,7 +1,7 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import axios from "axios";
 import { Button } from "flowbite-react";
-import React, { useEffect, useState, Dispatch } from "react";
+import React, { useEffect, useState } from "react";
 import { Resolver, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { MdAddBox } from "react-icons/md";

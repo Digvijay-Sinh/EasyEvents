@@ -92,6 +92,8 @@ const EventPage = () => {
     null
   );
 
+  const [booked, setBooked] = useState(false);
+
   const position: LatLngExpression = [23.03282845, 72.54671281964617];
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -146,7 +148,7 @@ const EventPage = () => {
         `http://localhost:5000/api/v1/events/detailed/${eventId}`
       );
 
-      console.log(response.data);
+      console.log(JSON.stringify(response.data));
 
       // Set the fetched categories in the state
       setEvent(response.data[0]);
@@ -175,6 +177,9 @@ const EventPage = () => {
   useEffect(() => {
     fetchDetailedEventData();
   }, []);
+  useEffect(() => {
+    fetchDetailedEventData();
+  }, [booked]);
   useEffect(() => {
     console.log("====================================");
     console.log(event);
@@ -314,6 +319,8 @@ const EventPage = () => {
                       // User is outside the registration period
                       // Display a message or take appropriate action
                     }
+                  } else {
+                    setModalOpen(true);
                   }
                   //check if user exists in auth in useAuth
 
@@ -426,7 +433,9 @@ const EventPage = () => {
             {modalOpen && (
               <div className="fixed inset-0 backdrop-filter backdrop-blur-lg">
                 <LazyCustomModal
+                  booked={booked}
                   modalOpen={modalOpen}
+                  setBooked={setBooked}
                   handleOpenModal={handleOpenModal}
                   handleCloseModal={handleCloseModal}
                   eventId={event?.id}

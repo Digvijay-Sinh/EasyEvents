@@ -19,7 +19,6 @@ const LongEventCard: React.FC<EventDetailsProps> = ({ event, customKey }) => {
     const userLocalDate = new Date(
       utcDate.toLocaleString("en-US", { timeZone: userTimeZone })
     );
-    console.log(userLocalDate);
 
     return `${userLocalDate.toDateString()}`;
   };

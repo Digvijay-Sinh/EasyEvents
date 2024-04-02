@@ -37,42 +37,6 @@ const SearchBar: React.FC<props> = ({
     startDate: "",
     endDate: "",
   });
-  // const applySearchFilter =()=>{
-
-  // }
-
-  // const handleValueChange = (newValue: DateRangeState) => {
-  //   const initialDatetime = newValue.startDate
-  //     ? new Date(newValue.startDate).toISOString()
-  //     : new Date().toISOString();
-
-  //   let initialDatetime2;
-  //   if (newValue.endDate) {
-  //     initialDatetime2 = new Date(newValue.endDate);
-  //   } else {
-  //     // Set the end date to 12 months from now
-  //     initialDatetime2 = new Date();
-  //     initialDatetime2.setMonth(initialDatetime2.getMonth() + 12);
-  //   }
-
-  //   // Set the time to 23:59 if endDate is not empty
-  //   if (newValue.endDate) {
-  //     initialDatetime2.setHours(23);
-  //     initialDatetime2.setMinutes(59);
-  //   }
-
-  //   // Set the time to 23:59
-  //   initialDatetime2.setHours(23);
-  //   initialDatetime2.setMinutes(59);
-  //   const endDateNew = initialDatetime2.toISOString();
-  //   console.log(initialDatetime2.toISOString());
-  //   console.log("newValue:", newValue);
-  //   setValue({
-  //     startDate: initialDatetime,
-  //     endDate: endDateNew,
-  //   });
-  //   setSearched(true);
-  // };
 
   const handleValueChange = (newValue: DateRangeState) => {
     const initialDatetime = newValue.startDate
@@ -164,6 +128,25 @@ const SearchBar: React.FC<props> = ({
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (searchTerm === "") {
+        return;
+      }
+      setSearched(true);
+      const apiUrl = `http://localhost:5000/api/v1/events/search?search=${searchTerm}&startDate=${value.startDate}&endDate=${value.endDate}&category=${category}`;
+      console.log(apiUrl);
+      fetchSearchedAndFilteredEvents(apiUrl);
+      setTimeout(() => {
+        setIsLoadingSearch(false);
+      }, 1000); // You can adjust the timeout value as per your needs
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [searchTerm]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();

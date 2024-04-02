@@ -1,22 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { RiAccountCircleFill } from "react-icons/ri";
-import { MdDelete, MdEmail, MdFlipCameraAndroid } from "react-icons/md";
+import { MdDelete, MdEmail } from "react-icons/md";
 import { FaEdit, FaEye, FaPhoneAlt } from "react-icons/fa";
 import { Button, Card } from "flowbite-react";
 import { MdDateRange } from "react-icons/md";
 import { TbStatusChange } from "react-icons/tb";
 import { RiSecurePaymentFill } from "react-icons/ri";
 import { Tabs } from "flowbite-react";
-import { HiAdjustments, HiClipboardList, HiUserCircle } from "react-icons/hi";
-import { MdDashboard } from "react-icons/md";
+
 import { MdHistory, MdEventRepeat } from "react-icons/md";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { axiosPrivate } from "../../api/axios";
 import { Link } from "react-router-dom";
 import { IoCamera } from "react-icons/io5";
-const MAX_IMAGE_SIZE_MB = 1; // Maximum image size allowed in MB
 const SUPPORTED_IMAGE_TYPES = ["image/jpeg", "image/png"]; // Supported image types
 
 interface SelectedUserData {
@@ -451,6 +449,7 @@ const UserProfile: React.FC = () => {
                                   alt="qrcode"
                                 />
                               </div>
+                              <div></div>
                             </div>
                           </div>
                         </div>
@@ -481,7 +480,7 @@ const UserProfile: React.FC = () => {
                         {/* Bookings Table Side */}
                         <div className="sm:w-2/3 justify-between sm:p-4 w-full p-1 flex flex-col">
                           <div className="datetime flex items-center p-3 rounded-xl sm:py-3 backdrop-blur-md bg-black/50  ">
-                            <div className="flex flex-col gap-3">
+                            <div className="flex flex-col gap-3 w-full">
                               {" "}
                               <div className="username w-full flex gap-2 justify-between items-center">
                                 <span className="text-sm   md:text-base text-white m-0">
@@ -550,7 +549,7 @@ const UserProfile: React.FC = () => {
                                   className="bg-red-700"
                                 >
                                   <MdDelete className="text-xl mr-2" />
-                                  Delete Event
+                                  Cancel Event
                                 </Button>
                               </div>
                             </div>

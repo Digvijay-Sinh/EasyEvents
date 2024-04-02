@@ -9,6 +9,8 @@ import { useAuth } from "../../context/AuthProvider";
 import { axiosPrivate } from "../../api/axios";
 
 interface LazyCustomModalProps {
+  booked: boolean;
+  setBooked: React.Dispatch<React.SetStateAction<boolean>>;
   modalOpen: boolean;
   handleOpenModal: () => void;
   handleCloseModal: () => void;
@@ -17,6 +19,8 @@ interface LazyCustomModalProps {
 }
 
 const CustomModal: React.FC<LazyCustomModalProps> = ({
+  booked,
+  setBooked,
   modalOpen,
   handleOpenModal,
   handleCloseModal,
@@ -48,6 +52,7 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           // Generate a random string of 16 characters alphanumeric
         }
       );
+      setBooked(true);
       toast.success("Booking Successfull");
       navigate(`/event/${eventId}`);
       handleCloseModal();
@@ -139,7 +144,7 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
                         </p>
                         <p>
                           <span className="text-white text-sm font-semibold">
-                            = ${noOfTickets * eventPrice}
+                            = ₹{noOfTickets * eventPrice}
                           </span>
                         </p>
                       </div>

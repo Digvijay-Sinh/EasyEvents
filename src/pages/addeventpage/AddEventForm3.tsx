@@ -105,6 +105,8 @@ const AddEventForm3: React.FC<props> = ({
           { eventId: eventId, filename: uploadedFileName }
         );
         toast.success("Poster image added successfully");
+        toast.success("Event added successfully");
+        navigate("/");
         if (formSubmitResponse.status === 200) {
           console.log("===========uploaded successfully===============");
           console.log(formSubmitResponse.data);
@@ -155,8 +157,8 @@ const AddEventForm3: React.FC<props> = ({
           </h1>
           <div>
             <div>
-              <div className="sm:w-1/2   m-4 sm:self-center sm:flex sm:w-full sm:items-center  ">
-                <div className="sm:w-1/2 ">
+              <div className=" gap-8 justify-center  m-4 sm:self-center sm:flex sm:w-full sm:items-center  ">
+                <div className=" ">
                   <label className="block relative mb-2 text-sm font-medium text-white sm:flex sm:flex-col sm:items-center">
                     Poster Image
                     <input
@@ -171,7 +173,7 @@ const AddEventForm3: React.FC<props> = ({
                     </div>
                   </label>
                   <Button className="mx-auto my-0" onClick={onSubmit}>
-                    Upload Image
+                    Publish Your Event
                   </Button>
                 </div>
                 <div>
@@ -193,14 +195,14 @@ const AddEventForm3: React.FC<props> = ({
         </div>
       </div>
       <div className="flex w-full justify-center">
-        <Button
+        {/* <Button
           onClick={() => {
             toast.success("Event added successfully");
             navigate("/");
           }}
         >
           Publish your event
-        </Button>
+        </Button> */}
       </div>
       {/* </div> */}
     </section>
