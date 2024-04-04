@@ -82,6 +82,7 @@ const DemoApi = lazy(() => import("../pages/demoApi"));
 const ProtectedPage = lazy(() => import("../pages/protectedpage"));
 const SuccessPage = lazy(() => import("../pages/successpage"));
 const UserProfilePAge = lazy(() => import("../pages/userprofilepage"));
+const PaymentPage = lazy(() => import("../pages/paymentDemoPage"));
 
 const RouteContainer = () => {
   return (
@@ -107,6 +108,7 @@ const RouteContainer = () => {
         <Route path="/private" element={<PrivateRequestPage />} />
         <Route path="/checkBg" element={<CheckBg />} />
         <Route path="/demoapi" element={<DemoApi />} />
+        <Route path="/payment" element={<PaymentPage />} />
         {/* <Route
           path="/protected"
           element={

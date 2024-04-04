@@ -31,6 +31,41 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
 
   const { auth } = useAuth();
   const [noOfTickets, setNoOfTickets] = useState(1);
+
+  const checkoutHandler = async (amount: number, bookingId: number) => {
+    const {
+      data: { key },
+    } = await axios.get("http://www.localhost:5000/api/v1/getkey");
+
+    const {
+      data: { order },
+    } = await axios.post("http://localhost:5000/api/v1/payment/checkout", {
+      amount,
+    });
+
+    console.log(order);
+
+    const options = {
+      key,
+      amount: order.amount,
+      currency: "INR",
+      name: "easyevents",
+      description: "Tutorial of RazorPay",
+      image:
+        "https://cdn.dribbble.com/users/3912043/screenshots/17104063/media/44503acdcf3394f0e3ea558a06246c2f.jpg",
+      order_id: order.id,
+      callback_url: `http://localhost:5000/api/v1/payment/paymentverification/${bookingId}`,
+
+      notes: {
+        address: "Razorpay Corporate Office",
+      },
+      theme: {
+        color: "#121212",
+      },
+    };
+    const razor = new window.Razorpay(options);
+    razor.open();
+  };
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -43,8 +78,8 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           eventId: eventId,
           numberOfTickets: noOfTickets,
           totalAmount: noOfTickets * eventPrice,
-          bookingStatus: "Confirm",
-          paymentStatus: "Confirm",
+          bookingStatus: "pending",
+          paymentStatus: "pending",
           paymentMethod: "online",
           bookingDateTime: new Date().toISOString(),
           bookingReference: randomString,
@@ -52,14 +87,15 @@ const CustomModal: React.FC<LazyCustomModalProps> = ({
           // Generate a random string of 16 characters alphanumeric
         }
       );
-      setBooked(true);
-      toast.success("Booking Successfull");
-      navigate(`/event/${eventId}`);
-      handleCloseModal();
       console.log("response", response.data.data.id);
 
       // Handle the response
       console.log("Response:", response.data);
+      checkoutHandler(noOfTickets * eventPrice, response.data.data.id);
+      setBooked(true);
+      toast.success("Booking Successfull");
+      navigate(`/event/${eventId}`);
+      handleCloseModal();
     } catch (error: any) {
       // Handle any errors
       toast.error(error.response.data.message);
