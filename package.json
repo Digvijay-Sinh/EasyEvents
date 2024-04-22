@@ -36,6 +36,7 @@
         "react-multi-carousel": "^2.8.4",
         "react-router-dom": "^6.22.1",
         "react-tailwindcss-datepicker": "^1.6.6",
+        "rsuite": "^5.59.0",
         "rxjs": "^7.8.1",
         "uuid": "^9.0.1",
         "vite-plugin-pwa": "^0.19.7",

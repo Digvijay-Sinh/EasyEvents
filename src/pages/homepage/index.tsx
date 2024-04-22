@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Hero from "./components/Hero";
 import axios from "axios";
 import { axiosPrivate } from "../../api/axios";
-import { AuthData, useAuth } from "../../context/AuthProvider";
+import { useAuth } from "../../context/AuthProvider";
 import { Suspense, lazy, useEffect, useState } from "react";
 import EventCard from "./components/EventCard";
 import Carousel from "react-multi-carousel";
@@ -11,9 +11,8 @@ import SearchBar from "./components/SearchBar";
 import toast from "react-hot-toast";
 import CategoryCard from "./components/CategoryCard";
 import LongEventCard from "./components/LongEventCard";
-import Loader from "../../components/Loader";
+
 import { Pagination } from "flowbite-react";
-import { set } from "react-hook-form";
 
 const LazyCustomModal = lazy(() => import("./components/UserInterestModal"));
 
